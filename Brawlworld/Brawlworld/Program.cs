@@ -199,6 +199,7 @@ namespace Brawlworld
 
     class Inventory
     {
-
+        int size;
+        Item[] content;
     }
 }
