@@ -35,6 +35,22 @@ namespace Brawlworld
 
     class Lexicon
     {
+        public Lexicon()
+        {
+            ResizeWindow();
+        }
+        public void ResizeWindow()
+        {
+
+            //Console.SetWindowSize((Console.LargestWindowWidth - 2*Console.WindowLeft), (Console.LargestWindowHeight - 2*Console.WindowTop));
+
+            //Console.WindowHeight = Console.LargestWindowHeight;
+            //Console.WindowWidth = Console.LargestWindowWidth;
+            Console.SetWindowPosition(0, 0);
+            
+            Console.WriteLine(Console.SetWindowPosition.ToString());
+        }
+
         public NameGenerator ng = new NameGenerator();
 
         public int GetX()
@@ -128,9 +144,17 @@ namespace Brawlworld
     {
         Lexicon Q = new Lexicon();
 
-        int[] dimensions = new int[2];
-
         Tile[,] map;
+
+        public Map(int widthSet = 5, int heightSet = 5)
+        {
+            map = new Tile[widthSet, heightSet];
+        }
+    }
+
+    class MapCell : Map
+    {
+        Map[,] map;
     }
 
     class Tile
