@@ -15,14 +15,17 @@ namespace Brawlworld
                 tries++;
                 target = Q.ng.GenName();
                 Console.WriteLine(target);
-
                 Console.ReadKey();
-                Console.Clear();
+                //Console.Clear();
 
-                if(target.ToUpper() == "")
+                if (target.ToUpper().StartsWith("JESP"))
                 {
+                    Console.WriteLine(target);
                     Console.WriteLine(tries);
+                    tries = 0;
+
                     Console.ReadKey();
+                    Console.WriteLine("...");
                 }
             }
         }
@@ -49,7 +52,7 @@ namespace Brawlworld
     {
         char[] vokal = new char[6] {'e', 'y', 'u', 'i', 'o', 'a' };
         char[] konsonant = new char[20] {'q', 'w', 'r', 't', 'p', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm' };
-        string[] title = new string[8] {"Slayer", "Destroyer", "Defender", "Protector", "Maester", "Professor", "Escapist", "Assasin" };
+        string[] title = new string[9] {"Slayer", "Destroyer", "Defender", "Protector", "Maester", "Professor", "Escapist", "Assasin", "Lord"};
 
         int lenght;
         int streak;
@@ -63,6 +66,8 @@ namespace Brawlworld
         {
             name = "";
             lenght = r.Next(2, 8);
+
+            //streak = 1;
 
             if (r.Next(100) < 50)
             {
@@ -82,9 +87,10 @@ namespace Brawlworld
                 }
                 streak++;
 
-                if(r.Next(101) < 25 + 25 * streak + 23*type)
+                if(r.Next(101) < 25 + 25 * streak/* + 23*type*/)
                 {
                     type *= -1;
+                    streak = 0;
                 }
 
                 if (i == 0)
