@@ -182,6 +182,8 @@ namespace Brawlworld
     {
         public bool GameIsRunning = true;
 
+        Player[] players = new Player[1] { new Player() };
+
         void battle()
         {
 
@@ -210,10 +212,8 @@ namespace Brawlworld
     {
         public bool unWalkable;
 
-
     }
-    
-    
+        
     //ENTITY
     class Entity
     {
