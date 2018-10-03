@@ -4,29 +4,28 @@ namespace Brawlworld
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Lexicon Q = new Lexicon();
+            GameController gctrl = new GameController();
+            Console.Title = "BrawlWorld";
+            
+            Hero plr = new Hero();
+            //plr.statsSet();
+            plr.StatsGen();
+            Console.WriteLine("Your Character:\n" + plr.Name() + " " + plr.WriteLvl() + "\n" + plr.WriteStats());
 
-            string target = "";
-            int tries = 0;
-            while (true)
+            while (gctrl.GameIsRunning)
             {
-                tries++;
-                target = Q.ng.GenName();
-                Console.WriteLine(target);
                 Console.ReadKey();
-                //Console.Clear();
+                Console.WriteLine();
 
-                if (target.ToUpper().StartsWith("JESP"))
-                {
-                    Console.WriteLine(target);
-                    Console.WriteLine(tries);
-                    tries = 0;
+                Actor opponent = new Actor();
+                opponent.lvl = new Random().Next(Math.Max(1, plr.lvl - 3), plr.lvl + 3);
+                opponent.StatsGen();
+                Console.WriteLine(opponent.Name() + " " + opponent.WriteLvl() + "\n" +  opponent.WriteStats());
 
-                    Console.ReadKey();
-                    Console.WriteLine("...");
-                }
+                plr.Lvl(10 + (2 * opponent.lvl -  2 * plr.lvl));
             }
         }
     }
@@ -39,6 +38,51 @@ namespace Brawlworld
         {
             ResizeWindow();
         }
+
+        public string Read()
+        {
+            string input = Console.ReadLine();
+
+            switch (input)
+            {
+                case "?":
+                    break;
+
+                case "!":
+                    break;
+            }
+
+            return input;
+        }
+
+        public int StringInt(string input, int defaultNum = 0)
+        {
+            if (int.TryParse(input, out int result))
+            {
+                return result;
+            } else
+            {
+                Console.WriteLine("Input was not a number. Number set to " + defaultNum);
+                return defaultNum;
+            } 
+        }
+
+        public void ErrorInput(string inputError, string[] inputValid)
+        {
+            Console.Write("Input " + inputError + " was invalid. Enter valid input: ");
+            for (int i = 0; i < inputValid.Length; i++)
+            {
+                Console.Write("[" + inputValid[i] +"]");
+                if(i != inputValid.Length)
+                {
+                    Console.Write("; ");
+                } else
+                {
+                    Console.Write(".\n");
+                }
+            }
+        }
+
         public void ResizeWindow()
         {
 
@@ -48,7 +92,7 @@ namespace Brawlworld
             //Console.WindowWidth = Console.LargestWindowWidth;
             Console.SetWindowPosition(0, 0);
             
-            Console.WriteLine(Console.SetWindowPosition.ToString());
+            //Console.WriteLine(Console.SetWindowPosition.ToString());
         }
 
         public NameGenerator ng = new NameGenerator();
@@ -136,7 +180,12 @@ namespace Brawlworld
 
     class GameController
     {
+        public bool GameIsRunning = true;
 
+        void battle()
+        {
+
+        }
     }
 
     //MAP
@@ -168,26 +217,139 @@ namespace Brawlworld
     //ENTITY
     class Entity
     {
-        Lexicon Q = new Lexicon();
+        public Lexicon Q = new Lexicon();
 
-        int[,] pos;
+        public string name;
+        public int[,] pos;
+
+        public string Name()
+        {
+            return name;
+        }
     }
 
     class Actor : Entity
     {
-        int vitality;
-        int strenght;
-        int intelegence;
-        int agility;
+        int vitality = 1;
+        int strenght = 1;
+        int intelegence = 1;
+        int agility = 1;
 
         int xp;
-        int lvl;
+        public int lvl = 1;
 
         Item[] inventory = new Item[6];
         Item[] inventoryOld;
 
         Item weapon;
         Item armor;
+
+        public string WriteLvl()
+        {
+            return "[lvl: " + lvl + "]";
+        }
+
+        public string WriteStats()
+        {
+            return "[Strength: " + strenght + " | Vitality: " + vitality + " | Intelegence: " + intelegence + " | Agility: " + agility + "]";
+        }
+
+        public void Lvl(int amount)
+        {
+            xp += amount;
+
+            if (xp >= 100 * lvl)
+            {
+                Console.WriteLine("LVL UP!");
+                xp -= 100 * lvl;
+                lvl++;
+            }
+        }
+
+        public void statsSet()
+        {
+            Console.WriteLine("Set Name");
+            name = Console.ReadLine();
+
+            int skillPoints = 5 + lvl * 2;
+            int skillAmountSet = 0;
+
+            
+
+            while (skillPoints > 0)
+            {
+                Console.WriteLine("Distribute Skillpoints: [S]renght, [V]itality, [I]ntelegence, [A]gility");
+                Console.WriteLine("Skillpoints: " + skillPoints);
+                Console.WriteLine(WriteStats());
+                string skillSet = Console.ReadLine().ToUpper().Substring(0, 1);
+
+                switch (skillSet)
+                {
+                    case "S":
+                        Console.WriteLine("Amount of points");
+                        skillAmountSet = Q.StringInt(Console.ReadLine(), 1);
+                        strenght += Math.Min(skillAmountSet, skillPoints);
+                        skillPoints -= Math.Min(skillAmountSet, skillPoints);
+                        break;
+
+                    case "V":
+                        Console.WriteLine("Amount of points");
+                        skillAmountSet = Q.StringInt(Console.ReadLine(), 1);
+                        strenght += Math.Min(skillAmountSet, skillPoints);
+                        skillPoints -= Math.Min(skillAmountSet, skillPoints);
+                        break;
+
+                    case "I":
+                        Console.WriteLine("Amount of points");
+                        skillAmountSet = Q.StringInt(Console.ReadLine(), 1);
+                        strenght += Math.Min(skillAmountSet, skillPoints);
+                        skillPoints -= Math.Min(skillAmountSet, skillPoints);
+                        break;
+
+                    case "A":
+                        Console.WriteLine("Amount of points");
+                        skillAmountSet = Q.StringInt(Console.ReadLine(), 1);
+                        strenght += Math.Min(skillAmountSet, skillPoints);
+                        skillPoints -= Math.Min(skillAmountSet, skillPoints);
+                        break;
+
+                    default:
+                        Q.ErrorInput(skillSet, new string[4] { "S", "V", "I", "A" });
+                        break;
+                }
+            }
+            
+        }
+
+        public void StatsGen()
+        {
+            name = Q.ng.GenName();
+            Random r = new Random();
+
+            int skillPoints = 5 + 2 * lvl;
+
+            for (int i = 0; i < skillPoints; i++)
+            {
+                switch (r.Next(4))
+                {
+                    case 0:
+                        strenght++;
+                        break;
+
+                    case 1:
+                        vitality++;
+                        break;
+
+                    case 2:
+                        intelegence++;
+                        break;
+
+                    case 3:
+                        agility++;
+                        break;
+                }
+            }
+        }
     }
 
     class Enemy : Actor
