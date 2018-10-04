@@ -9,11 +9,13 @@ namespace Brawlworld
             Lexicon Q = new Lexicon();
             GameController gctrl = new GameController();
             Console.Title = "BrawlWorld";
+            Console.WriteLine("Welcome to BrawlWorld!");
+            Console.WriteLine("Press any key to start.");
+            Console.ReadKey();
+
             
-            Hero plr = new Hero();
-            //plr.statsSet();
-            plr.StatsGen();
-            Console.WriteLine("Your Character:\n" + plr.Name() + " " + plr.WriteLvl() + "\n" + plr.WriteStats());
+            gctrl.players[0].plr.StatsGen(5 + 2 * gctrl.players[0].plr.lvl);
+            Console.WriteLine("Your Character:\n" + gctrl.players[0].plr.Name() + " " + gctrl.players[0].plr.WriteLvl() + "\n" + gctrl.players[0].plr.WriteStats());
 
             while (gctrl.GameIsRunning)
             {
@@ -21,11 +23,11 @@ namespace Brawlworld
                 Console.WriteLine();
 
                 Actor opponent = new Actor();
-                opponent.lvl = new Random().Next(Math.Max(1, plr.lvl - 3), plr.lvl + 3);
-                opponent.StatsGen();
+                opponent.lvl = new Random().Next(Math.Max(1, gctrl.players[0].plr.lvl - 3), gctrl.players[0].plr.lvl + 3);
+                opponent.StatsGen(5 + 2 * opponent.lvl);
                 Console.WriteLine(opponent.Name() + " " + opponent.WriteLvl() + "\n" +  opponent.WriteStats());
 
-                plr.Lvl(10 + (2 * opponent.lvl -  2 * plr.lvl));
+                gctrl.players[0].plr.Lvl(10 + (2 * opponent.lvl -  2 * gctrl.players[0].plr.lvl));
             }
         }
     }
@@ -182,7 +184,7 @@ namespace Brawlworld
     {
         public bool GameIsRunning = true;
 
-        Player[] players = new Player[1] { new Player() };
+        public Player[] players = new Player[1] { new Player() };
 
         void battle()
         {
@@ -254,27 +256,36 @@ namespace Brawlworld
             return "[Strength: " + strenght + " | Vitality: " + vitality + " | Intelegence: " + intelegence + " | Agility: " + agility + "]";
         }
 
-        public void Lvl(int amount)
+        public void Lvl(int amount, bool lvlupSkillSet = true)
         {
             xp += amount;
+            Console.WriteLine("+" + amount + "xp");
 
             if (xp >= 100 * lvl)
             {
-                Console.WriteLine("LVL UP!");
                 xp -= 100 * lvl;
                 lvl++;
+
+                Console.WriteLine("LVL UP! [lvl: " + lvl + "]");
+
+                if (lvlupSkillSet)
+                {
+                    StatsSet(2);
+                }
+                else
+                {
+                    StatsGen(2);
+                }
             }
         }
 
-        public void statsSet()
+        public void StatsSet(int skillPoints)
         {
             Console.WriteLine("Set Name");
             name = Console.ReadLine();
 
-            int skillPoints = 5 + lvl * 2;
+            //int skillPoints = 5 + lvl * 2;
             int skillAmountSet = 0;
-
-            
 
             while (skillPoints > 0)
             {
@@ -321,12 +332,12 @@ namespace Brawlworld
             
         }
 
-        public void StatsGen()
+        public void StatsGen(int skillPoints)
         {
             name = Q.ng.GenName();
             Random r = new Random();
 
-            int skillPoints = 5 + 2 * lvl;
+            //skillPoints = 5 + 2 * lvl;
 
             for (int i = 0; i < skillPoints; i++)
             {
@@ -364,7 +375,7 @@ namespace Brawlworld
 
     class Player
     {
-        Hero plr = new Hero();
+        public Hero plr = new Hero();
     }
 
     //ITEM
