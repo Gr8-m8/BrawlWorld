@@ -10,11 +10,15 @@ namespace Brawlworld
             GameController gctrl = new GameController();
             Console.Title = "BrawlWorld";
             Console.WriteLine("Welcome to BrawlWorld!");
+            Console.WriteLine();
+            Console.CursorSize = 10;
             Console.WriteLine("Press any key to start.");
             Console.ReadKey();
 
-            
-            gctrl.players[0].plr.StatsGen(5 + 2 * gctrl.players[0].plr.lvl);
+
+            //*
+            gctrl.players[0].plr.StatsSet(5 + 2 * gctrl.players[0].plr.lvl);
+            //*/gctrl.players[0].plr.StatsGen(5 + 2 * gctrl.players[0].plr.lvl);
             Console.WriteLine("Your Character:\n" + gctrl.players[0].plr.Name() + " " + gctrl.players[0].plr.WriteLvl() + "\n" + gctrl.players[0].plr.WriteStats());
 
             while (gctrl.GameIsRunning)
@@ -55,6 +59,11 @@ namespace Brawlworld
             }
 
             return input;
+        }
+
+        public string ReadKey()
+        {
+            return "";
         }
 
         public int StringInt(string input, int defaultNum = 0)
@@ -292,34 +301,35 @@ namespace Brawlworld
                 Console.WriteLine("Distribute Skillpoints: [S]renght, [V]itality, [I]ntelegence, [A]gility");
                 Console.WriteLine("Skillpoints: " + skillPoints);
                 Console.WriteLine(WriteStats());
-                string skillSet = Console.ReadLine().ToUpper().Substring(0, 1);
+                //string skillSet = Console.ReadLine().ToUpper().Substring(0, 1);
+                string skillSet = Console.ReadKey().KeyChar.ToString().ToUpper();
 
                 switch (skillSet)
                 {
                     case "S":
                         Console.WriteLine("Amount of points");
-                        skillAmountSet = Q.StringInt(Console.ReadLine(), 1);
+                        skillAmountSet = Q.StringInt(Console.ReadKey().KeyChar.ToString().ToUpper(), 1);
                         strenght += Math.Min(skillAmountSet, skillPoints);
                         skillPoints -= Math.Min(skillAmountSet, skillPoints);
                         break;
 
                     case "V":
                         Console.WriteLine("Amount of points");
-                        skillAmountSet = Q.StringInt(Console.ReadLine(), 1);
+                        skillAmountSet = Q.StringInt(Console.ReadKey().KeyChar.ToString(), 1);
                         strenght += Math.Min(skillAmountSet, skillPoints);
                         skillPoints -= Math.Min(skillAmountSet, skillPoints);
                         break;
 
                     case "I":
                         Console.WriteLine("Amount of points");
-                        skillAmountSet = Q.StringInt(Console.ReadLine(), 1);
+                        skillAmountSet = Q.StringInt(Console.ReadKey().KeyChar.ToString(), 1);
                         strenght += Math.Min(skillAmountSet, skillPoints);
                         skillPoints -= Math.Min(skillAmountSet, skillPoints);
                         break;
 
                     case "A":
                         Console.WriteLine("Amount of points");
-                        skillAmountSet = Q.StringInt(Console.ReadLine(), 1);
+                        skillAmountSet = Q.StringInt(Console.ReadKey().KeyChar.ToString(), 1);
                         strenght += Math.Min(skillAmountSet, skillPoints);
                         skillPoints -= Math.Min(skillAmountSet, skillPoints);
                         break;
