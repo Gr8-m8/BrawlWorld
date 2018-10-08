@@ -9,16 +9,21 @@ namespace Brawlworld
             Lexicon Q = new Lexicon();
             GameController gctrl = new GameController();
             Console.Title = "BrawlWorld";
+
+            Console.WriteLine();
             Console.WriteLine("Welcome to BrawlWorld!");
             Console.WriteLine();
             Console.CursorSize = 10;
             Console.WriteLine("Press any key to start.");
+            Console.WriteLine();
+
             Console.ReadKey();
 
 
-            //*
-            gctrl.players[0].plr.StatsSet(5 + 2 * gctrl.players[0].plr.lvl);
-            //*/gctrl.players[0].plr.StatsGen(5 + 2 * gctrl.players[0].plr.lvl);
+            /*
+            gctrl.players[0].plr.StatsSet(0, true);
+            //*/
+            gctrl.players[0].plr.StatsGen(0, true);
             Console.WriteLine("Your Character:\n" + gctrl.players[0].plr.Name() + " " + gctrl.players[0].plr.WriteLvl() + "\n" + gctrl.players[0].plr.WriteStats());
 
             while (gctrl.GameIsRunning)
@@ -26,16 +31,17 @@ namespace Brawlworld
                 Console.ReadKey();
                 Console.WriteLine();
 
-                Actor opponent = new Actor();
-                opponent.lvl = new Random().Next(Math.Max(1, gctrl.players[0].plr.lvl - 3), gctrl.players[0].plr.lvl + 3);
+                Warior opponent = new Warior();
+                opponent.lvl = 100; //new Random().Next(Math.Max(1, gctrl.players[0].plr.lvl - 3), gctrl.players[0].plr.lvl + 3);
                 opponent.StatsGen(5 + 2 * opponent.lvl);
-                Console.WriteLine(opponent.Name() + " " + opponent.WriteLvl() + "\n" +  opponent.WriteStats());
+                opponent.NameSet(Q.ng.GenName());
+                Console.WriteLine(opponent.Name() + " " + opponent.WriteLvl() + "\n" + opponent.WriteStats());
 
-                gctrl.players[0].plr.Lvl(10 + (2 * opponent.lvl -  2 * gctrl.players[0].plr.lvl));
+                //gctrl.players[0].plr.Lvl(10 + (2 * opponent.lvl -  2 * gctrl.players[0].plr.lvl));
             }
         }
     }
-    
+
     //GAMECONTROLL
 
     class Lexicon
@@ -75,7 +81,7 @@ namespace Brawlworld
             {
                 Console.WriteLine("Input was not a number. Number set to " + defaultNum);
                 return defaultNum;
-            } 
+            }
         }
 
         public void ErrorInput(string inputError, string[] inputValid)
@@ -83,8 +89,8 @@ namespace Brawlworld
             Console.Write("Input " + inputError + " was invalid. Enter valid input: ");
             for (int i = 0; i < inputValid.Length; i++)
             {
-                Console.Write("[" + inputValid[i] +"]");
-                if(i != inputValid.Length)
+                Console.Write("[" + inputValid[i] + "]");
+                if (i != inputValid.Length)
                 {
                     Console.Write("; ");
                 } else
@@ -102,7 +108,7 @@ namespace Brawlworld
             //Console.WindowHeight = Console.LargestWindowHeight;
             //Console.WindowWidth = Console.LargestWindowWidth;
             Console.SetWindowPosition(0, 0);
-            
+
             //Console.WriteLine(Console.SetWindowPosition.ToString());
         }
 
@@ -121,9 +127,9 @@ namespace Brawlworld
 
     class NameGenerator
     {
-        char[] vokal = new char[6] {'e', 'y', 'u', 'i', 'o', 'a' };
-        char[] konsonant = new char[20] {'q', 'w', 'r', 't', 'p', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm' };
-        string[] title = new string[9] {"Slayer", "Destroyer", "Defender", "Protector", "Maester", "Professor", "Escapist", "Assasin", "Lord"};
+        char[] vokal = new char[6] { 'e', 'y', 'u', 'i', 'o', 'a' };
+        char[] konsonant = new char[20] { 'q', 'w', 'r', 't', 'p', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm' };
+        string[] title = new string[9] { "Slayer", "Destroyer", "Defender", "Protector", "Maester", "Professor", "Escapist", "Assasin", "Lord" };
 
         int lenght;
         int streak;
@@ -158,7 +164,7 @@ namespace Brawlworld
                 }
                 streak++;
 
-                if(r.Next(101) < 25 + 25 * streak/* + 23*type*/)
+                if (r.Next(101) < 25 + 25 * streak/* + 23*type*/)
                 {
                     type *= -1;
                     streak = 0;
@@ -224,7 +230,7 @@ namespace Brawlworld
         public bool unWalkable;
 
     }
-        
+
     //ENTITY
     class Entity
     {
@@ -237,6 +243,11 @@ namespace Brawlworld
         {
             return name;
         }
+
+        public void NameSet(string nameSet)
+        {
+            name = nameSet;
+        }
     }
 
     class Actor : Entity
@@ -245,6 +256,8 @@ namespace Brawlworld
         int strenght = 1;
         int intelegence = 1;
         int agility = 1;
+        public int[] sts = new int[4] { 1, 1, 1, 1 };
+
 
         int xp;
         public int lvl = 1;
@@ -288,12 +301,15 @@ namespace Brawlworld
             }
         }
 
-        public void StatsSet(int skillPoints)
+        public void StatsSet(int skillPoints, bool startUp = false)
         {
-            Console.WriteLine("Set Name");
-            name = Console.ReadLine();
 
-            //int skillPoints = 5 + lvl * 2;
+            if (startUp)
+            {
+                Console.WriteLine("Set Name");
+                NameSet(Console.ReadLine());
+                skillPoints = 5 + lvl * 2;
+            }
             int skillAmountSet = 0;
 
             while (skillPoints > 0)
@@ -339,19 +355,43 @@ namespace Brawlworld
                         break;
                 }
             }
-            
+
         }
 
-        public void StatsGen(int skillPoints)
+        public void StatsGen(int skillPoints, bool startUp = false)
         {
-            name = Q.ng.GenName();
-            Random r = new Random();
+            if (startUp)
+            {
+                NameSet(Q.ng.GenName());
+                skillPoints = 5 + lvl * 2;
+            }
 
-            //skillPoints = 5 + 2 * lvl;
+            Random r = new Random();
 
             for (int i = 0; i < skillPoints; i++)
             {
-                switch (r.Next(4))
+                int rn = r.Next(sts[0] + sts[1] + sts[2] + sts[3]);
+                //Console.WriteLine(sts[0] + sts[1] + sts[2] + sts[3] + ":" + sts[0] + ":" + sts[1] + ":" + sts[2] + ":" + sts[3]);
+                //Console.WriteLine(rn);
+
+                if (rn >= sts[0] + sts[1] + sts[2])
+                {
+                    agility++;
+                }
+                else if (rn >= sts[0] + sts[1])
+                {
+                    intelegence++;
+                }
+                else if (rn >= sts[0])
+                {
+                    vitality++;
+                }
+                else
+                {
+                    strenght++;
+                }
+
+                /*switch (r.Next(4))
                 {
                     case 0:
                         strenght++;
@@ -368,14 +408,53 @@ namespace Brawlworld
                     case 3:
                         agility++;
                         break;
-                }
+                }*/
             }
         }
     }
 
-    class Enemy : Actor
+    class Warior : Actor
     {
+        public Warior()
+        {
+            sts[0] = 6;
+            sts[1] = 1;
+            sts[2] = 1;
+            sts[3] = 1;
+        }
+    }
 
+    class Tank : Actor
+    {
+        public Tank()
+        {
+            sts[0] = 1;
+            sts[1] = 6;
+            sts[2] = 1;
+            sts[3] = 1;
+        }
+    }
+
+    class Wizzard : Actor
+    {
+        public Wizzard()
+        {
+            sts[0] = 1;
+            sts[1] = 1;
+            sts[2] = 6;
+            sts[3] = 1;
+        }
+    }
+
+    class Scout : Actor
+    {
+        public Scout()
+        {
+            sts[0] = 1;
+            sts[1] = 1;
+            sts[2] = 1;
+            sts[3] = 6;
+        }
     }
 
     class Hero : Actor
