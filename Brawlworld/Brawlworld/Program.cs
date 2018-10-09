@@ -31,7 +31,7 @@ namespace Brawlworld
                 Console.ReadKey();
                 Console.WriteLine();
 
-                Wizzard opponent = new Wizzard();
+                Golem opponent = new Golem();
                 opponent.lvl = 100; //new Random().Next(Math.Max(1, gctrl.players[0].plr.lvl - 3), gctrl.players[0].plr.lvl + 3);
                 opponent.StatsGen(5 + 2 * opponent.lvl);
                 opponent.NameSet(Q.ng.GenName());
@@ -254,7 +254,7 @@ namespace Brawlworld
     {
         int vitality = 1;
         int strenght = 1;
-        int intelegence = 1;
+        int intelligence = 1;
         int agility = 1;
         public int[] sts = new int[4] { 1, 1, 1, 1 };
 
@@ -275,7 +275,7 @@ namespace Brawlworld
 
         public string WriteStats()
         {
-            return "[Strength: " + strenght + " | Vitality: " + vitality + " | Intelegence: " + intelegence + " | Agility: " + agility + "]";
+            return "[Strength: " + strenght + " | Vitality: " + vitality + " | Intelegence: " + intelligence + " | Agility: " + agility + "]";
         }
 
         public void Lvl(int amount, bool lvlupSkillSet = true)
@@ -299,6 +299,14 @@ namespace Brawlworld
                     StatsGen(2);
                 }
             }
+        }
+
+        public void StsSet(int strenghtChance, int vitalityChance, int intelligenceChance, int agilityChance)
+        {
+            sts[0] = strenghtChance;
+            sts[1] = vitalityChance;
+            sts[2] = intelligenceChance;
+            sts[3] = agilityChance;
         }
 
         public void StatsSet(int skillPoints, bool startUp = false)
@@ -371,8 +379,6 @@ namespace Brawlworld
             for (int i = 0; i < skillPoints; i++)
             {
                 int rn = r.Next(sts[0] + sts[1] + sts[2] + sts[3]);
-                //Console.WriteLine(sts[0] + sts[1] + sts[2] + sts[3] + ":" + sts[0] + ":" + sts[1] + ":" + sts[2] + ":" + sts[3]);
-                //Console.WriteLine(rn);
 
                 if (rn >= sts[0] + sts[1] + sts[2])
                 {
@@ -380,7 +386,7 @@ namespace Brawlworld
                 }
                 else if (rn >= sts[0] + sts[1])
                 {
-                    intelegence++;
+                    intelligence++;
                 }
                 else if (rn >= sts[0])
                 {
@@ -390,37 +396,20 @@ namespace Brawlworld
                 {
                     strenght++;
                 }
-
-                /*switch (r.Next(4))
-                {
-                    case 0:
-                        strenght++;
-                        break;
-
-                    case 1:
-                        vitality++;
-                        break;
-
-                    case 2:
-                        intelegence++;
-                        break;
-
-                    case 3:
-                        agility++;
-                        break;
-                }*/
             }
         }
     }
 
-    class Warior : Actor
+    interface IWarrior
     {
-        public Warior()
+        
+    }
+
+    class Warrior : Actor
+    {
+        public Warrior()
         {
-            sts[0] = 6;
-            sts[1] = 1;
-            sts[2] = 1;
-            sts[3] = 1;
+            StsSet(6, 1, 1, 1);
         }
     }
 
@@ -428,21 +417,15 @@ namespace Brawlworld
     {
         public Tank()
         {
-            sts[0] = 1;
-            sts[1] = 6;
-            sts[2] = 1;
-            sts[3] = 1;
+            StsSet(1, 6, 1, 1);
         }
     }
 
-    class Wizzard : Actor
+    class Wizard : Actor
     {
-        public Wizzard()
+        public Wizard()
         {
-            sts[0] = 1;
-            sts[1] = 1;
-            sts[2] = 6;
-            sts[3] = 1;
+            StsSet(1, 1, 6, 1);
         }
     }
 
@@ -450,10 +433,15 @@ namespace Brawlworld
     {
         public Scout()
         {
-            sts[0] = 1;
-            sts[1] = 1;
-            sts[2] = 1;
-            sts[3] = 6;
+            StsSet(1, 1, 1, 6);
+        }
+    }
+
+    class Golem : Actor
+    {
+        public Golem()
+        {
+            StsSet(10, 10, 1, 1);
         }
     }
 
