@@ -33,7 +33,7 @@ namespace Brawlworld
 
                 Golem opponent = new Golem();
                 opponent.lvl = 100; //new Random().Next(Math.Max(1, gctrl.players[0].plr.lvl - 3), gctrl.players[0].plr.lvl + 3);
-                opponent.StatsGen(5 + 2 * opponent.lvl);
+                opponent.StatsGen(0, true);
                 opponent.NameSet(Q.ng.GenName());
                 Console.WriteLine(opponent.Name() + " " + opponent.WriteLvl() + "\n" + opponent.WriteStats());
 
@@ -131,25 +131,18 @@ namespace Brawlworld
         char[] konsonant = new char[20] { 'q', 'w', 'r', 't', 'p', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm' };
         string[] title = new string[9] { "Slayer", "Destroyer", "Defender", "Protector", "Maester", "Professor", "Escapist", "Assasin", "Lord" };
 
-        int lenght;
-        int streak;
-        int type = 1;
-
-        string name;
-
         Random r = new Random();
 
         public string GenName()
         {
-            name = "";
-            lenght = r.Next(2, 8);
-
-            //streak = 1;
+            string name = "";
+            int lenght = r.Next(2, 8);
+            int streak = 0;
+            int type = 1;
 
             if (r.Next(100) < 50)
             {
                 type *= -1;
-                streak = 0;
             }
 
             for (int i = 0; i < lenght; i++)
@@ -164,7 +157,7 @@ namespace Brawlworld
                 }
                 streak++;
 
-                if (r.Next(101) < 25 + 25 * streak/* + 23*type*/)
+                if (r.Next(101) < 25 + 25 * streak + 5*type)
                 {
                     type *= -1;
                     streak = 0;
@@ -473,6 +466,11 @@ namespace Brawlworld
     }
 
     class Weapon : Item
+    {
+
+    }
+
+    class Rune : Item
     {
 
     }
