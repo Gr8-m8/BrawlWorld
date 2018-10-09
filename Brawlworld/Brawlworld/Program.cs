@@ -31,7 +31,7 @@ namespace Brawlworld
                 Console.ReadKey();
                 Console.WriteLine();
 
-                Warior opponent = new Warior();
+                Wizzard opponent = new Wizzard();
                 opponent.lvl = 100; //new Random().Next(Math.Max(1, gctrl.players[0].plr.lvl - 3), gctrl.players[0].plr.lvl + 3);
                 opponent.StatsGen(5 + 2 * opponent.lvl);
                 opponent.NameSet(Q.ng.GenName());
