@@ -7,10 +7,9 @@ namespace Brawlworld
         static void Main()
         {
             Lexicon Q = new Lexicon();
-            GameController gctrl = new GameController();
-            Console.Title = "BrawlWorld";
+            GameController gctrl = new GameController(Q);
 
-            Console.WriteLine();
+            Console.Title = "BrawlWorld";
             Console.WriteLine("Welcome to BrawlWorld!");
             Console.WriteLine();
             Console.CursorSize = 10;
@@ -18,7 +17,7 @@ namespace Brawlworld
             Console.WriteLine();
 
             Console.ReadKey();
-
+            gctrl.InitPlr();
 
             /*
             gctrl.players[0].plr.StatsSet(0, true);
@@ -31,10 +30,9 @@ namespace Brawlworld
                 Console.ReadKey();
                 Console.WriteLine();
 
-                Golem opponent = new Golem();
+                Actor opponent = new Actor(Q);
                 opponent.lvl = 100; //new Random().Next(Math.Max(1, gctrl.players[0].plr.lvl - 3), gctrl.players[0].plr.lvl + 3);
                 opponent.StatsGen(0, true);
-                opponent.NameSet(Q.ng.GenName());
                 Console.WriteLine(opponent.Name() + " " + opponent.WriteLvl() + "\n" + opponent.WriteStats());
 
                 //gctrl.players[0].plr.Lvl(10 + (2 * opponent.lvl -  2 * gctrl.players[0].plr.lvl));
@@ -190,20 +188,38 @@ namespace Brawlworld
 
     class GameController
     {
+        public Lexicon Q;
+
+        public GameController(Lexicon getQ)
+        {
+            Q = getQ;
+        }
+
         public bool GameIsRunning = true;
 
-        public Player[] players = new Player[1] { new Player() };
+        int numOfPlr = 1;
+        public Player[] players;
 
-        void battle()
+        public void InitPlr(int numOfPlrSet = 1)
         {
-
+            numOfPlr = numOfPlrSet;
+            players = new Player[numOfPlr];
+            for (int i = 0; i < numOfPlr; i++)
+            {
+                players[i] = new Player(Q);
+            }
         }
     }
 
     //MAP
     class Map
     {
-        Lexicon Q = new Lexicon();
+        Lexicon Q;
+
+        Map(Lexicon getQ)
+        {
+            Q = getQ;
+        }
 
         Tile[,] map;
 
@@ -227,7 +243,12 @@ namespace Brawlworld
     //ENTITY
     class Entity
     {
-        public Lexicon Q = new Lexicon();
+        public Lexicon Q;
+
+        public Entity(Lexicon getQ)
+        {
+            Q = getQ;
+        }
 
         public string name;
         public int[,] pos;
@@ -245,6 +266,11 @@ namespace Brawlworld
 
     class Actor : Entity
     {
+        public Actor(Lexicon getQ) : base(getQ)
+        {
+            Q = getQ;
+        }
+
         int vitality = 1;
         int strenght = 1;
         int intelligence = 1;
@@ -363,7 +389,7 @@ namespace Brawlworld
         {
             if (startUp)
             {
-                NameSet(Q.ng.GenName());
+                NameSet(new NameGenerator().GenName());
                 skillPoints = 5 + lvl * 2;
             }
 
@@ -393,59 +419,59 @@ namespace Brawlworld
         }
     }
 
-    interface IWarrior
-    {
-        
-    }
-
     class Warrior : Actor
     {
-        public Warrior()
+        public Warrior(Lexicon getQ) : base(getQ)
         {
+            Q = getQ;
             StsSet(6, 1, 1, 1);
         }
     }
 
     class Tank : Actor
     {
-        public Tank()
+        public Tank(Lexicon getQ) : base(getQ)
         {
+            Q = getQ;
             StsSet(1, 6, 1, 1);
         }
     }
 
     class Wizard : Actor
     {
-        public Wizard()
+        public Wizard(Lexicon getQ) : base(getQ)
         {
+            Q = getQ;
             StsSet(1, 1, 6, 1);
         }
     }
 
     class Scout : Actor
     {
-        public Scout()
+        public Scout(Lexicon getQ) : base(getQ)
         {
+            Q = getQ;
             StsSet(1, 1, 1, 6);
         }
     }
 
     class Golem : Actor
     {
-        public Golem()
+        public Golem(Lexicon getQ) : base(getQ)
         {
+            Q = getQ;
             StsSet(10, 10, 1, 1);
         }
     }
 
-    class Hero : Actor
-    {
-
-    }
-
     class Player
     {
-        public Hero plr = new Hero();
+        public Actor plr;
+        public Player(Lexicon getQ)
+        {
+            plr = new Actor(getQ);
+        }
+         
     }
 
     //ITEM
