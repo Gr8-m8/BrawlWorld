@@ -12,17 +12,18 @@ namespace Brawlworld
             Console.Title = "BrawlWorld";
             Console.WriteLine("Welcome to BrawlWorld!");
             Console.WriteLine();
-            Console.CursorSize = 10;
+            Console.WriteLine("'!' will activete Options Menu");
+            Console.WriteLine("'?' will activete Help Menu");
+            Console.WriteLine();
             Console.WriteLine("Press any key to start.");
             Console.WriteLine();
 
-            Console.ReadKey();
+            Q.InputKey();
             gctrl.InitPlr();
 
-            /*
+            //*
             gctrl.players[0].plr.StatsSet(0, true);
-            //*/
-            gctrl.players[0].plr.StatsGen(0, true);
+            //*/gctrl.players[0].plr.StatsGen(0, true);
             Console.WriteLine("Your Character:\n" + gctrl.players[0].plr.Name() + " " + gctrl.players[0].plr.WriteLvl() + "\n" + gctrl.players[0].plr.WriteStats());
 
             while (gctrl.GameIsRunning)
@@ -49,36 +50,98 @@ namespace Brawlworld
             ResizeWindow();
         }
 
-        public string Read()
+        public string InputText(bool helpActive = true)
         {
-            string input = Console.ReadLine();
+            string text = Console.ReadLine();
 
-            switch (input)
+            if (helpActive)
             {
-                case "?":
-                    break;
-
-                case "!":
-                    break;
+                Menu(text);
             }
 
-            return input;
+            return text;
         }
 
-        public string ReadKey()
+        public string InputKey(bool helpActive = true)
         {
-            return "";
+            string key = Console.ReadKey().KeyChar.ToString().ToUpper();
+            Console.WriteLine();
+
+            if (helpActive)
+            {
+                Menu(key);
+            }
+
+            return key;
         }
 
-        public int StringInt(string input, int defaultNum = 0)
+        public int InputNumberInt(bool helpActive = true)
         {
-            if (int.TryParse(input, out int result))
+            string stringNum = Console.ReadLine();
+            if (helpActive)
             {
-                return result;
-            } else
+                Menu(stringNum);
+            }
+
+            int num = 0;
+            bool confirmNum = true;
+            while (confirmNum)
             {
-                Console.WriteLine("Input was not a number. Number set to " + defaultNum);
-                return defaultNum;
+                if (int.TryParse(stringNum, out int result))
+                {
+                    confirmNum = false;
+                    num = result;
+                }
+                else
+                {
+                    ErrorInput(stringNum, new string[1] { "Number" });
+                    stringNum = Console.ReadLine();
+                }
+            }
+            return num;
+        }
+
+        public void Menu(string input)
+        {
+            switch (input)
+            {
+                case "!":
+                    bool optionsMenu = true;
+                    Console.WriteLine("Options Menu");
+                    while (optionsMenu)
+                    {
+                        Console.WriteLine("[E]xit Menu");
+                        switch (InputKey(false))
+                        {
+                            case "E":
+                                optionsMenu = false;
+                                break;
+
+                            default:
+                                ErrorInput("", new string[0]);
+                                break;
+                        }
+                    }
+                    break;
+
+                case "?":
+                    bool helpMenu = true;
+                    Console.WriteLine("Help Menu");
+                    while (helpMenu)
+                    {
+                        Console.WriteLine("[E]xit Menu");
+                        switch (InputKey(false))
+                        {
+                            case "E":
+                                helpMenu = false;
+                                break;
+
+                            default:
+                                ErrorInput("", new string[0]);
+                                break;
+                        }
+                    }
+                    break;
             }
         }
 
@@ -109,8 +172,6 @@ namespace Brawlworld
 
             //Console.WriteLine(Console.SetWindowPosition.ToString());
         }
-
-        public NameGenerator ng = new NameGenerator();
 
         public int GetX()
         {
@@ -345,40 +406,40 @@ namespace Brawlworld
                 Console.WriteLine("Skillpoints: " + skillPoints);
                 Console.WriteLine(WriteStats());
                 //string skillSet = Console.ReadLine().ToUpper().Substring(0, 1);
-                string skillSet = Console.ReadKey().KeyChar.ToString().ToUpper();
+                string skillSet = Q.InputKey();
 
                 switch (skillSet)
                 {
                     case "S":
                         Console.WriteLine("Amount of points");
-                        skillAmountSet = Q.StringInt(Console.ReadKey().KeyChar.ToString().ToUpper(), 1);
+                        skillAmountSet = Q.InputNumberInt();
                         strenght += Math.Min(skillAmountSet, skillPoints);
                         skillPoints -= Math.Min(skillAmountSet, skillPoints);
                         break;
 
                     case "V":
                         Console.WriteLine("Amount of points");
-                        skillAmountSet = Q.StringInt(Console.ReadKey().KeyChar.ToString(), 1);
-                        strenght += Math.Min(skillAmountSet, skillPoints);
+                        skillAmountSet = Q.InputNumberInt();
+                        vitality += Math.Min(skillAmountSet, skillPoints);
                         skillPoints -= Math.Min(skillAmountSet, skillPoints);
                         break;
 
                     case "I":
                         Console.WriteLine("Amount of points");
-                        skillAmountSet = Q.StringInt(Console.ReadKey().KeyChar.ToString(), 1);
-                        strenght += Math.Min(skillAmountSet, skillPoints);
+                        skillAmountSet = Q.InputNumberInt();
+                        intelligence += Math.Min(skillAmountSet, skillPoints);
                         skillPoints -= Math.Min(skillAmountSet, skillPoints);
                         break;
 
                     case "A":
                         Console.WriteLine("Amount of points");
-                        skillAmountSet = Q.StringInt(Console.ReadKey().KeyChar.ToString(), 1);
-                        strenght += Math.Min(skillAmountSet, skillPoints);
+                        skillAmountSet = Q.InputNumberInt();
+                        agility += Math.Min(skillAmountSet, skillPoints);
                         skillPoints -= Math.Min(skillAmountSet, skillPoints);
                         break;
 
                     default:
-                        Q.ErrorInput(skillSet, new string[4] { "S", "V", "I", "A" });
+                        Q.ErrorInput(skillSet, new string[0] /*new string[4]{ "S", "V", "I", "A" }*/);
                         break;
                 }
             }
