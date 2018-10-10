@@ -12,8 +12,8 @@ namespace Brawlworld
             Console.Title = "BrawlWorld";
             Console.WriteLine("Welcome to BrawlWorld!");
             Console.WriteLine();
-            Console.WriteLine("'!' will activete Options Menu");
-            Console.WriteLine("'?' will activete Help Menu");
+            //Console.WriteLine("'!' will activete Options Menu");
+            //Console.WriteLine("'?' will activete Help Menu");
             Console.WriteLine();
             Console.WriteLine("Press any key to start.");
             Console.WriteLine();
@@ -28,7 +28,7 @@ namespace Brawlworld
 
             while (gctrl.GameIsRunning)
             {
-                Console.ReadKey();
+                Q.InputKey();
                 Console.WriteLine();
 
                 Actor opponent = new Actor(Q);
@@ -103,18 +103,33 @@ namespace Brawlworld
 
         public void Menu(string input)
         {
+            bool menuActive = true;
             switch (input)
             {
                 case "!":
-                    bool optionsMenu = true;
-                    Console.WriteLine("Options Menu");
-                    while (optionsMenu)
+                    Console.WriteLine("    Options Menu:");
+                    while (menuActive)
                     {
-                        Console.WriteLine("[E]xit Menu");
+                        Console.WriteLine("    E[x]it Menu");
+                        Console.WriteLine("    [E]xit Game");
                         switch (InputKey(false))
                         {
+                            case "X":
+                                menuActive = false;
+                                break;
+
                             case "E":
-                                optionsMenu = false;
+                                Console.WriteLine("Confirm Exit Game: [Y]es, [N]o");
+                                switch (InputKey(false))
+                                {
+                                    case "Y":
+                                        System.Environment.Exit(-1073741510);
+                                        break;
+
+                                    case "N":
+                                        break;
+
+                                }
                                 break;
 
                             default:
@@ -125,15 +140,14 @@ namespace Brawlworld
                     break;
 
                 case "?":
-                    bool helpMenu = true;
-                    Console.WriteLine("Help Menu");
-                    while (helpMenu)
+                    Console.WriteLine("    Help Menu:");
+                    while (menuActive)
                     {
-                        Console.WriteLine("[E]xit Menu");
+                        Console.WriteLine("    E[x]it Menu");
                         switch (InputKey(false))
                         {
-                            case "E":
-                                helpMenu = false;
+                            case "X":
+                                menuActive = false;
                                 break;
 
                             default:
@@ -395,7 +409,7 @@ namespace Brawlworld
             if (startUp)
             {
                 Console.WriteLine("Set Name");
-                NameSet(Console.ReadLine());
+                NameSet(Q.InputText());
                 skillPoints = 5 + lvl * 2;
             }
             int skillAmountSet = 0;
