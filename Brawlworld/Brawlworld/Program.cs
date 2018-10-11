@@ -21,7 +21,7 @@ namespace Brawlworld
             Q.InputKey();
             gctrl.InitPlr();
 
-            //*
+            /*
             gctrl.players[0].plr.StatsSet(0, true);
             //*/gctrl.players[0].plr.StatsGen(0, true);
             Console.WriteLine("Your Character:\n" + gctrl.players[0].plr.Name() + " " + gctrl.players[0].plr.WriteLvl() + "\n" + gctrl.players[0].plr.WriteStats());
@@ -45,11 +45,6 @@ namespace Brawlworld
 
     class Lexicon
     {
-        public Lexicon()
-        {
-            ResizeWindow();
-        }
-
         public string InputText(bool helpActive = true)
         {
             string text = Console.ReadLine();
@@ -123,7 +118,7 @@ namespace Brawlworld
                                 switch (InputKey(false))
                                 {
                                     case "Y":
-                                        System.Environment.Exit(-1073741510);
+                                        System.Environment.Exit(0);
                                         break;
 
                                     case "N":
@@ -175,18 +170,6 @@ namespace Brawlworld
             }
         }
 
-        public void ResizeWindow()
-        {
-
-            //Console.SetWindowSize((Console.LargestWindowWidth - 2*Console.WindowLeft), (Console.LargestWindowHeight - 2*Console.WindowTop));
-
-            //Console.WindowHeight = Console.LargestWindowHeight;
-            //Console.WindowWidth = Console.LargestWindowWidth;
-            Console.SetWindowPosition(0, 0);
-
-            //Console.WriteLine(Console.SetWindowPosition.ToString());
-        }
-
         public int GetX()
         {
             return 0;
@@ -204,7 +187,16 @@ namespace Brawlworld
         char[] konsonant = new char[20] { 'q', 'w', 'r', 't', 'p', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm' };
         string[] title = new string[9] { "Slayer", "Destroyer", "Defender", "Protector", "Maester", "Professor", "Escapist", "Assasin", "Lord" };
 
+        
         Random r = new Random();
+
+        public NameGenerator(int debugSeed = -1)
+        {
+            if(debugSeed > 0)
+            {
+                r = new Random(debugSeed);
+            }
+        }
 
         public string GenName()
         {
@@ -230,7 +222,7 @@ namespace Brawlworld
                 }
                 streak++;
 
-                if (r.Next(101) < 25 + 25 * streak + 5*type)
+                if (r.Next(101) < 25 + 25 * streak + 5 * type)
                 {
                     type *= -1;
                     streak = 0;
@@ -284,34 +276,27 @@ namespace Brawlworld
                 players[i] = new Player(Q);
             }
         }
+
+        void Battle(Actor[][] team_player)
+        {
+
+        }
     }
 
     //MAP
-    class Map
+    class MapManager
     {
         Lexicon Q;
 
-        Map(Lexicon getQ)
-        {
-            Q = getQ;
-        }
+        Tile[][] map;
 
-        Tile[,] map;
-
-        public Map(int widthSet = 5, int heightSet = 5)
-        {
-            map = new Tile[widthSet, heightSet];
-        }
-    }
-
-    class MapCell : Map
-    {
-        Map[,] map;
     }
 
     class Tile
     {
         public bool unWalkable;
+
+        Entity occupant;
 
     }
 
@@ -352,15 +337,12 @@ namespace Brawlworld
         int agility = 1;
         public int[] sts = new int[4] { 1, 1, 1, 1 };
 
-
         int xp;
         public int lvl = 1;
 
-        Item[] inventory = new Item[6];
-        Item[] inventoryOld;
-
-        Item weapon;
-        Item armor;
+        Inventory inventory = new Inventory();
+        Weapon weapon;
+        Armor armor;
 
         public string WriteLvl()
         {
@@ -470,6 +452,8 @@ namespace Brawlworld
 
             Random r = new Random();
 
+            StsSet(1, 1, 1, 1);
+
             for (int i = 0; i < skillPoints; i++)
             {
                 int rn = r.Next(sts[0] + sts[1] + sts[2] + sts[3]);
@@ -552,33 +536,81 @@ namespace Brawlworld
     //ITEM
     class Item
     {
-        public int vitality;
         public int strenght;
+        public int vitality;
         public int intelegence;
         public int agility;
 
-        int xp;
-        int lvl;
+        public Item(int s, int v, int i, int a)
+        {
+            strenght = s;
+            vitality = v;
+            intelegence = i;
+            agility = a;
+        }
+
+        void Use(Actor user)
+        {
+
+        }
     }
 
     class Armor : Item
     {
+        public Armor(int s, int v, int i, int a, int lvlset = 1) : base(s,  v,  i,  a)
+        {
+            strenght = s;
+            vitality = v;
+            intelegence = i;
+            agility = a;
+        }
 
+        void Use(Actor user)
+        {
+
+        }
     }
 
     class Weapon : Item
     {
+        public Weapon(int s, int v, int i, int a, int lvlset = 1) : base(s, v, i, a)
+        {
+            strenght = s;
+            vitality = v;
+            intelegence = i;
+            agility = a;
+        }
 
+        void Use(Actor user)
+        {
+
+        }
     }
 
     class Rune : Item
     {
+        public Rune(int s, int v, int i, int a, int lvlset = 1) : base(s, v, i, a)
+        {
+            strenght = s;
+            vitality = v;
+            intelegence = i;
+            agility = a;
+        }
 
+        void Use(Actor user)
+        {
+
+        }
     }
 
     class Inventory
     {
-        int size;
         Item[] content;
+        Item[] contentOld;
+
+        public Inventory(int inventorySize = 6)
+        {
+            content = new Item[inventorySize];
+        }
     }
 }
