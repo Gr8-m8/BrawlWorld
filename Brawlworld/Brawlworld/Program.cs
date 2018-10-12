@@ -403,8 +403,8 @@ namespace Brawlworld
 
         public bool isAI = true;
 
-        int vitality = 1;
         int strenght = 1;
+        int vitality = 1;
         int intelligence = 1;
         int agility = 1;
         public int[] sts = new int[4] { 1, 1, 1, 1 };
