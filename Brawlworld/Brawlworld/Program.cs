@@ -12,9 +12,11 @@ namespace Brawlworld
             Console.Title = "BrawlWorld";
             Console.WriteLine("Welcome to BrawlWorld!");
             Console.WriteLine();
-            //Console.WriteLine("'!' will activete Options Menu");
-            //Console.WriteLine("'?' will activete Help Menu");
+            /*
+            Console.WriteLine("'!' will activete Options Menu");
+            Console.WriteLine("'?' will activete Help Menu");
             Console.WriteLine();
+            //*/
             Console.WriteLine("Press any key to start.");
             Console.WriteLine();
 
@@ -32,7 +34,7 @@ namespace Brawlworld
                 Console.WriteLine();
 
                 Actor opponent = new Actor(Q);
-                opponent.lvl = 100; //new Random().Next(Math.Max(1, gctrl.players[0].plr.lvl - 3), gctrl.players[0].plr.lvl + 3);
+                opponent.lvl = new Random().Next(Math.Max(1, gctrl.players[0].plr.lvl - 3), gctrl.players[0].plr.lvl + 3);
                 opponent.StatsGen(0, true);
                 Console.WriteLine(opponent.Name() + " " + opponent.WriteLvl() + "\n" + opponent.WriteStats());
 
@@ -51,7 +53,10 @@ namespace Brawlworld
 
             if (helpActive)
             {
-                Menu(text);
+                if (Menu(text))
+                {
+                    text = Console.ReadLine();
+                }
             }
 
             return text;
@@ -64,7 +69,10 @@ namespace Brawlworld
 
             if (helpActive)
             {
-                Menu(key);
+                if (Menu(key))
+                {
+                    key = Console.ReadKey().KeyChar.ToString().ToUpper();
+                } 
             }
 
             return key;
@@ -75,7 +83,10 @@ namespace Brawlworld
             string stringNum = Console.ReadLine();
             if (helpActive)
             {
-                Menu(stringNum);
+                if (Menu(stringNum))
+                {
+                    stringNum = Console.ReadLine();
+                }
             }
 
             int num = 0;
@@ -96,7 +107,7 @@ namespace Brawlworld
             return num;
         }
 
-        public void Menu(string input)
+        public bool Menu(string input)
         {
             bool menuActive = true;
             switch (input)
@@ -151,7 +162,11 @@ namespace Brawlworld
                         }
                     }
                     break;
+
+                default:
+                    return false;
             }
+            return true;
         }
 
         public void ErrorInput(string inputError, string[] inputValid)
@@ -277,9 +292,54 @@ namespace Brawlworld
             }
         }
 
-        void Battle(Actor[][] team_player)
+        void Battle(Actor[,] team_player)
         {
+            bool battle = true;
+            while (battle)
+            {
+                for (int player = 0; player < team_player.GetUpperBound(1); player++)
+                {
+                    for (int team = 0; team < team_player.GetUpperBound(0); team++)
+                    {
+                        Console.WriteLine("Team " + team + " Player " + player + " Turn");
+                        if (team_player[team, player].isAI)
+                        {
+                            Random r = new Random();
 
+
+                            
+                        } else
+                        {
+                            bool action = true;
+                            while (action)
+                            {
+                                switch (Q.InputKey())
+                                {
+                                    case "A":
+                                        action = false;
+                                        break;
+
+                                    case "D":
+                                        action = false;
+                                        break;
+
+                                    case "M":
+                                        action = false;
+                                        break;
+
+                                    case "I":
+                                        action = false;
+                                        break;
+
+                                    default:
+                                        Q.ErrorInput("", new string[0]{});
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -288,7 +348,17 @@ namespace Brawlworld
     {
         Lexicon Q;
 
-        Tile[][] map;
+        MapManager(Lexicon getQ)
+        {
+            Q = getQ;
+        }
+
+        Tile[,] map;
+
+        void GenMap(int xSize = 10, int ySize = 10)
+        {
+            map = new Tile[xSize, ySize];
+        }
 
     }
 
@@ -330,6 +400,8 @@ namespace Brawlworld
         {
             Q = getQ;
         }
+
+        public bool isAI = true;
 
         int vitality = 1;
         int strenght = 1;
@@ -529,6 +601,7 @@ namespace Brawlworld
         public Player(Lexicon getQ)
         {
             plr = new Actor(getQ);
+            plr.isAI = false;
         }
          
     }
