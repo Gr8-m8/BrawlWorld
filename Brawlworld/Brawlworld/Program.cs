@@ -10,7 +10,10 @@ namespace Brawlworld
             GameController gctrl = new GameController(Q);
 
             Console.Title = "BrawlWorld";
-            Console.WriteLine("Welcome to BrawlWorld!");
+            //Console.WriteLine("Welcome to BrawlWorld!");
+            Console.Write("Welcome"); Console.Beep(260, 350);
+            Console.Write(" to"); Console.Beep(280, 350);
+            Console.Write(" BrawlWorld!"); Console.Beep(300, 700);
             Console.WriteLine();
             /*
             Console.WriteLine("'!' will activete Options Menu");
@@ -24,21 +27,17 @@ namespace Brawlworld
             gctrl.InitPlr();
 
             /*
-            gctrl.players[0].plr.StatsSet(0, true);
-            //*/gctrl.players[0].plr.StatsGen(0, true);
-            Console.WriteLine("Your Character:\n" + gctrl.players[0].plr.Name() + " " + gctrl.players[0].plr.WriteLvl() + "\n" + gctrl.players[0].plr.WriteStats());
+            gctrl.players[0].plr.ActorSetup(1,false);
+            //*/gctrl.players[0].plr.ActorSetup();
+            Console.WriteLine("Your Character:\n" + gctrl.players[0].plr.WriteActor());
 
             while (gctrl.GameIsRunning)
             {
                 Q.InputKey();
-                Console.WriteLine();
 
                 Actor opponent = new Actor(Q);
-                opponent.lvl = new Random().Next(Math.Max(1, gctrl.players[0].plr.lvl - 3), gctrl.players[0].plr.lvl + 3);
-                opponent.StatsGen(0, true);
-                Console.WriteLine(opponent.Name() + " " + opponent.WriteLvl() + "\n" + opponent.WriteStats());
-
-                //gctrl.players[0].plr.Lvl(10 + (2 * opponent.lvl -  2 * gctrl.players[0].plr.lvl));
+                opponent.ActorSetup(100/*new Random().Next(Math.Max(1, gctrl.players[0].plr.lvl - 3), gctrl.players[0].plr.lvl + 3)*/);
+                Console.WriteLine(opponent.WriteActor());
             }
         }
     }
@@ -268,6 +267,61 @@ namespace Brawlworld
         }
     }
 
+    class ActorRole
+    {
+        string role;
+        int[] sts;
+
+        string[] roles = new string[5] {"Jack", "Warior","Tank","Mage","Scout"};
+
+        public string RoleNameGet()
+        {
+            return role;
+        }
+
+        public int[] RoleStatsGet()
+        {
+            return sts;
+        }
+
+        public ActorRole(string roleSet = null)
+        {
+            if (roleSet != null)
+            {
+                role = roleSet;
+            } else
+            {
+                role = roles[new Random().Next(0, roles.Length)];
+            }
+
+            switch (role)
+            {
+                case "None":
+                case "Jack":
+                default:
+                    role = "Jack";
+                    sts = new int[4] { 1, 1, 1, 1 };
+                    break;
+
+                case "Warior":
+                    sts = new int[4] { 3, 1, 1, 1 };
+                    break;
+
+                case "Tank":
+                    sts = new int[4] { 1, 3, 1, 1 };
+                    break;
+
+                case "Mage":
+                    sts = new int[4] { 1, 1, 3, 1 };
+                    break;
+
+                case "Scout":
+                    sts = new int[4] { 1, 1, 1, 3 };
+                    break;
+            }
+        }
+    }
+
     class GameController
     {
         public Lexicon Q;
@@ -383,7 +437,7 @@ namespace Brawlworld
         public string name;
         public int[,] pos;
 
-        public string Name()
+        public string WriteName()
         {
             return name;
         }
@@ -408,6 +462,7 @@ namespace Brawlworld
         int intelligence = 1;
         int agility = 1;
         public int[] sts = new int[4] { 1, 1, 1, 1 };
+        public ActorRole role = new ActorRole("None");
 
         int xp;
         public int lvl = 1;
@@ -416,17 +471,7 @@ namespace Brawlworld
         Weapon weapon;
         Armor armor;
 
-        public string WriteLvl()
-        {
-            return "[lvl: " + lvl + "]";
-        }
-
-        public string WriteStats()
-        {
-            return "[Strength: " + strenght + " | Vitality: " + vitality + " | Intelegence: " + intelligence + " | Agility: " + agility + "]";
-        }
-
-        public void Lvl(int amount, bool lvlupSkillSet = true)
+        public void Lvl(int amount)
         {
             xp += amount;
             Console.WriteLine("+" + amount + "xp");
@@ -438,34 +483,47 @@ namespace Brawlworld
 
                 Console.WriteLine("LVL UP! [lvl: " + lvl + "]");
 
-                if (lvlupSkillSet)
-                {
-                    StatsSet(2);
-                }
-                else
+                if (isAI)
                 {
                     StatsGen(2);
                 }
+                else
+                {
+                    StatsSet(2);
+                }
             }
         }
 
-        public void StsSet(int strenghtChance, int vitalityChance, int intelligenceChance, int agilityChance)
+        public void ActorSetup(int lvlSet = 1, bool isAISet = true)
         {
-            sts[0] = strenghtChance;
-            sts[1] = vitalityChance;
-            sts[2] = intelligenceChance;
-            sts[3] = agilityChance;
-        }
-
-        public void StatsSet(int skillPoints, bool startUp = false)
-        {
-
-            if (startUp)
+            isAI = isAISet;
+            if (isAI)
+            {
+                NameSet(new NameGenerator().GenName());
+                lvl = lvlSet;
+                role = new ActorRole();
+                StsSet(role.RoleStatsGet());
+                StatsGen(5 + lvl * 2);
+            } else
             {
                 Console.WriteLine("Set Name");
                 NameSet(Q.InputText());
-                skillPoints = 5 + lvl * 2;
+
+                lvl = lvlSet;
+                StatsSet(5 + lvl * 2);
             }
+        }
+
+        public void StsSet(int[] stsSet)
+        {
+            sts[0] = stsSet[0];
+            sts[1] = stsSet[1];
+            sts[2] = stsSet[2];
+            sts[3] = stsSet[3];
+        }
+
+        public void StatsSet(int skillPoints)
+        {
             int skillAmountSet = 0;
 
             while (skillPoints > 0)
@@ -473,7 +531,6 @@ namespace Brawlworld
                 Console.WriteLine("Distribute Skillpoints: [S]renght, [V]itality, [I]ntelegence, [A]gility");
                 Console.WriteLine("Skillpoints: " + skillPoints);
                 Console.WriteLine(WriteStats());
-                //string skillSet = Console.ReadLine().ToUpper().Substring(0, 1);
                 string skillSet = Q.InputKey();
 
                 switch (skillSet)
@@ -511,20 +568,11 @@ namespace Brawlworld
                         break;
                 }
             }
-
         }
 
         public void StatsGen(int skillPoints, bool startUp = false)
         {
-            if (startUp)
-            {
-                NameSet(new NameGenerator().GenName());
-                skillPoints = 5 + lvl * 2;
-            }
-
             Random r = new Random();
-
-            StsSet(1, 1, 1, 1);
 
             for (int i = 0; i < skillPoints; i++)
             {
@@ -548,50 +596,20 @@ namespace Brawlworld
                 }
             }
         }
-    }
 
-    class Warrior : Actor
-    {
-        public Warrior(Lexicon getQ) : base(getQ)
+        public string WriteLvl()
         {
-            Q = getQ;
-            StsSet(6, 1, 1, 1);
+            return "[lvl: " + lvl + "]";
         }
-    }
 
-    class Tank : Actor
-    {
-        public Tank(Lexicon getQ) : base(getQ)
+        public string WriteStats()
         {
-            Q = getQ;
-            StsSet(1, 6, 1, 1);
+            return "[Strength: " + strenght + " | Vitality: " + vitality + " | Intelegence: " + intelligence + " | Agility: " + agility + "]";
         }
-    }
 
-    class Wizard : Actor
-    {
-        public Wizard(Lexicon getQ) : base(getQ)
+        public string WriteActor()
         {
-            Q = getQ;
-            StsSet(1, 1, 6, 1);
-        }
-    }
-
-    class Scout : Actor
-    {
-        public Scout(Lexicon getQ) : base(getQ)
-        {
-            Q = getQ;
-            StsSet(1, 1, 1, 6);
-        }
-    }
-
-    class Golem : Actor
-    {
-        public Golem(Lexicon getQ) : base(getQ)
-        {
-            Q = getQ;
-            StsSet(10, 10, 1, 1);
+            return WriteName() + " " + WriteLvl() + " (" + role.RoleNameGet() + ") \n" + WriteStats();
         }
     }
 
