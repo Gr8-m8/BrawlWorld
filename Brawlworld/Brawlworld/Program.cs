@@ -11,9 +11,10 @@ namespace Brawlworld
 
             Console.Title = "BrawlWorld";
             //Console.WriteLine("Welcome to BrawlWorld!");
-            Console.Write("Welcome"); Console.Beep(260, 350);
-            Console.Write(" to"); Console.Beep(280, 350);
-            Console.Write(" BrawlWorld!"); Console.Beep(300, 700);
+            Console.Write("Welcome "); Console.Beep(220, 180); Console.Beep(220, 280);
+            Console.Write("to "); Console.Beep(329, 600);
+            Console.Write("BrawlWorld! "); Console.Beep(391, 150); Console.Beep(329, 700);
+            Console.WriteLine();
             Console.WriteLine();
             /*
             Console.WriteLine("'!' will activete Options Menu");
@@ -26,7 +27,7 @@ namespace Brawlworld
             Q.InputKey();
             gctrl.InitPlr();
 
-            /*
+            //*
             gctrl.players[0].plr.ActorSetup(1,false);
             //*/gctrl.players[0].plr.ActorSetup();
             Console.WriteLine("Your Character:\n" + gctrl.players[0].plr.WriteActor());
@@ -64,6 +65,7 @@ namespace Brawlworld
         public string InputKey(bool helpActive = true)
         {
             string key = Console.ReadKey().KeyChar.ToString().ToUpper();
+            //Console.Beep(200, 200);
             Console.WriteLine();
 
             if (helpActive)
@@ -80,6 +82,7 @@ namespace Brawlworld
         public int InputNumberInt(bool helpActive = true)
         {
             string stringNum = Console.ReadLine();
+            //Console.Beep(200, 200);
             if (helpActive)
             {
                 if (Menu(stringNum))
@@ -101,6 +104,7 @@ namespace Brawlworld
                 {
                     ErrorInput(stringNum, new string[1] { "Number" });
                     stringNum = Console.ReadLine();
+                    //Console.Beep(200, 200);
                 }
             }
             return num;
@@ -299,7 +303,7 @@ namespace Brawlworld
                 case "None":
                 case "Jack":
                 default:
-                    role = "Jack";
+                    role = "Trades Jack";
                     sts = new int[4] { 1, 1, 1, 1 };
                     break;
 
@@ -356,38 +360,60 @@ namespace Brawlworld
                     for (int team = 0; team < team_player.GetUpperBound(0); team++)
                     {
                         Console.WriteLine("Team " + team + " Player " + player + " Turn");
-                        if (team_player[team, player].isAI)
-                        {
-                            Random r = new Random();
+                        int atkC = team_player[team, player].strenght;
+                        int defC = team_player[team, player].vitality;
+                        int splC = team_player[team, player].intelligence;
+                        int aglC = team_player[team, player].agility;
 
-
-                            
-                        } else
-                        {
-                            bool action = true;
-                            while (action)
+                        while (aglC > 0) {
+                            if (team_player[team, player].isAI)
                             {
-                                switch (Q.InputKey())
+                                Random r = new Random();
+
+
+                                int rn = r.Next(atkC + defC + splC);
+
+                                if (rn >= atkC + defC)
                                 {
-                                    case "A":
-                                        action = false;
-                                        break;
 
-                                    case "D":
-                                        action = false;
-                                        break;
+                                }
+                                else if (rn >= atkC)
+                                {
 
-                                    case "M":
-                                        action = false;
-                                        break;
+                                }
+                                else
+                                {
 
-                                    case "I":
-                                        action = false;
-                                        break;
+                                }
 
-                                    default:
-                                        Q.ErrorInput("", new string[0]{});
-                                        break;
+                            }
+                            else
+                            {
+                                bool action = true;
+                                while (action)
+                                {
+                                    switch (Q.InputKey())
+                                    {
+                                        case "A":
+                                            action = false;
+                                            break;
+
+                                        case "D":
+                                            action = false;
+                                            break;
+
+                                        case "M":
+                                            action = false;
+                                            break;
+
+                                        case "I":
+                                            action = false;
+                                            break;
+
+                                        default:
+                                            Q.ErrorInput("", new string[0] { });
+                                            break;
+                                    }
                                 }
                             }
                         }
@@ -457,10 +483,10 @@ namespace Brawlworld
 
         public bool isAI = true;
 
-        int strenght = 1;
-        int vitality = 1;
-        int intelligence = 1;
-        int agility = 1;
+        public int strenght = 1;
+        public int vitality = 1;
+        public int intelligence = 1;
+        public int agility = 1;
         public int[] sts = new int[4] { 1, 1, 1, 1 };
         public ActorRole role = new ActorRole("None");
 
