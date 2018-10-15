@@ -1,19 +1,44 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Brawlworld
 {
     class Program
     {
-        static void Main()
+        static int Main()
         {
+            Program P = new Program();
             Lexicon Q = new Lexicon();
             GameController gctrl = new GameController(Q);
 
+            Inventory[] inv = new Inventory[2] {new Inventory(), new Inventory() };
+
+            while (true)
+            {
+                Console.WriteLine("Inventory: A R L");
+                switch (Q.InputKey())
+                {
+                    case "A":
+                        Console.WriteLine("Name, quantity");
+                        inv[0].AddItem(new Item(1, 1, 1, 1, 10, Q.InputText(), Q.InputNumberInt()));
+                        break;
+
+                    case "R":
+                        inv[0].removeItem(new Item(1, 1, 1, 1, 10, Q.InputText(), Q.InputNumberInt()));
+                        break;
+
+                    case "L":
+                    default:
+                        inv[0].WriteContent();
+                        break;
+                }
+            }
+
             Console.Title = "BrawlWorld";
             //Console.WriteLine("Welcome to BrawlWorld!");
-            Console.Write("Welcome "); Console.Beep(220, 180); Console.Beep(220, 280);
-            Console.Write("to "); Console.Beep(329, 600);
-            Console.Write("BrawlWorld! "); Console.Beep(391, 150); Console.Beep(329, 700);
+            Console.Write("Welcome ");      //Console.Beep(220, 180); Console.Beep(220, 280);
+            Console.Write("to ");           //Console.Beep(329, 600);
+            Console.Write("BrawlWorld! ");  //Console.Beep(391, 150); Console.Beep(329, 700);
             Console.WriteLine();
             Console.WriteLine();
             /*
@@ -26,8 +51,8 @@ namespace Brawlworld
 
             Q.InputKey();
             gctrl.InitPlr();
-
-            //*
+            
+            /*
             gctrl.players[0].plr.ActorSetup(1,false);
             //*/gctrl.players[0].plr.ActorSetup();
             Console.WriteLine("Your Character:\n" + gctrl.players[0].plr.WriteActor());
@@ -40,6 +65,8 @@ namespace Brawlworld
                 opponent.ActorSetup(100/*new Random().Next(Math.Max(1, gctrl.players[0].plr.lvl - 3), gctrl.players[0].plr.lvl + 3)*/);
                 Console.WriteLine(opponent.WriteActor());
             }
+
+            return 0;
         }
     }
 
@@ -276,7 +303,7 @@ namespace Brawlworld
         string role;
         int[] sts;
 
-        string[] roles = new string[5] {"Jack", "Warior","Tank","Mage","Scout"};
+        string[] roles = new string[5] {"Jack", "Warrior","Tank","Mage","Scout"};
 
         public string RoleNameGet()
         {
@@ -307,7 +334,7 @@ namespace Brawlworld
                     sts = new int[4] { 1, 1, 1, 1 };
                     break;
 
-                case "Warior":
+                case "Warrior":
                     sts = new int[4] { 3, 1, 1, 1 };
                     break;
 
@@ -653,13 +680,21 @@ namespace Brawlworld
     //ITEM
     class Item
     {
+        public string name;
+        public int quantity;
+        public int value;
+
         public int strenght;
         public int vitality;
         public int intelegence;
         public int agility;
 
-        public Item(int s, int v, int i, int a)
+        public Item(int s, int v, int i, int a, int val, string nameSet, int q = 1)
         {
+            name = nameSet;
+            value = val;
+            quantity = q;
+
             strenght = s;
             vitality = v;
             intelegence = i;
@@ -674,8 +709,12 @@ namespace Brawlworld
 
     class Armor : Item
     {
-        public Armor(int s, int v, int i, int a, int lvlset = 1) : base(s,  v,  i,  a)
+        public Armor(int s, int v, int i, int a, int val, string nameSet, int q = 1) : base(s, v, i, a, val, nameSet, q = 1)
         {
+            name = nameSet;
+            value = val;
+            quantity = q;
+
             strenght = s;
             vitality = v;
             intelegence = i;
@@ -690,8 +729,12 @@ namespace Brawlworld
 
     class Weapon : Item
     {
-        public Weapon(int s, int v, int i, int a, int lvlset = 1) : base(s, v, i, a)
+        public Weapon(int s, int v, int i, int a, int val, string nameSet, int q = 1) : base(s, v, i, a, val, nameSet, q = 1)
         {
+            name = nameSet;
+            value = val;
+            quantity = q;
+
             strenght = s;
             vitality = v;
             intelegence = i;
@@ -706,8 +749,12 @@ namespace Brawlworld
 
     class Rune : Item
     {
-        public Rune(int s, int v, int i, int a, int lvlset = 1) : base(s, v, i, a)
+        public Rune(int s, int v, int i, int a, int val, string nameSet, int q = 1) : base(s, v, i, a, val, nameSet, q = 1)
         {
+            name = nameSet;
+            value = val;
+            quantity = q;
+
             strenght = s;
             vitality = v;
             intelegence = i;
@@ -722,12 +769,58 @@ namespace Brawlworld
 
     class Inventory
     {
-        Item[] content;
-        Item[] contentOld;
+        int money = 0;
+        Dictionary<string, Item> content = new Dictionary<string, Item>();
 
-        public Inventory(int inventorySize = 6)
+        public void AddItem(Item itemAdd)
         {
-            content = new Item[inventorySize];
+            if (content.ContainsKey(itemAdd.name))
+            {
+                content[itemAdd.name].quantity += itemAdd.quantity;
+            }
+            else
+            {
+                content.Add(itemAdd.name, itemAdd);
+            }
+        }
+
+        public Item removeItem(Item itemRem)
+        {
+            if (content[itemRem.name].quantity - itemRem.quantity > 0)
+            {
+                content[itemRem.name].quantity -= itemRem.quantity;
+            }
+            else
+            {
+                itemRem.quantity -= content[itemRem.name].quantity;
+                content.Remove(itemRem.name);
+                return itemRem;
+            }
+            return null;
+        }
+
+        public int MoneyTransfer(int amount)
+        {
+            if (money + amount >= 0)
+            {
+                money += amount;
+            } else {
+                money = 0;
+                return money + amount;
+            }
+
+            return 0;
+        }
+
+        public void WriteContent()
+        {
+            Console.WriteLine("Money: " + money + "$");
+            foreach (KeyValuePair<string, Item> de in content)
+            {
+                Item i = de.Value;
+                Console.WriteLine(i.name + " [" + i.quantity + "] [" + i.value + "$] " + i.strenght + " " + i.vitality + " " + i.intelegence + " " + i.vitality);
+            }
+            Console.WriteLine();
         }
     }
 }
