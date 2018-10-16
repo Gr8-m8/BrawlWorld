@@ -13,23 +13,52 @@ namespace Brawlworld
 
             Inventory[] inv = new Inventory[2] {new Inventory(), new Inventory() };
 
+            for (int i = 0; i < 10; i++)
+            {
+                if (i < 5)
+                {
+                    inv[0].AddItem(new Item(0, 0, 0, 0, 10 * i, "Test_" + i, i));
+                }
+                else
+                {
+                    inv[1].AddItem(new Item(0, 0, 0, 0, Convert.ToInt32(100 + 100 * 0.1 * i), "Test_" + i, i));
+                }
+            }
+            int selectedInv = 0;
+            int destinationInv = 1;
             while (true)
             {
-                Console.WriteLine("Inventory: A R L");
+                
+                inv[0].WriteContent();
+                inv[1].WriteContent();
+                Console.WriteLine("Inventory: 0 1 T");
                 switch (Q.InputKey())
                 {
-                    case "A":
-                        Console.WriteLine("Name, quantity");
-                        inv[0].AddItem(new Item(1, 1, 1, 1, 10, Q.InputText(), Q.InputNumberInt()));
-                        break;
-
-                    case "R":
-                        inv[0].removeItem(new Item(1, 1, 1, 1, 10, Q.InputText(), Q.InputNumberInt()));
-                        break;
-
-                    case "L":
+                    case "0":
                     default:
-                        inv[0].WriteContent();
+                        selectedInv = 0;
+                        destinationInv = 1;
+                        break;
+
+                    case "1":
+                        selectedInv = 1;
+                        destinationInv = 0;
+                        break;
+
+                    case "T":
+                        Console.WriteLine("Item name");
+                        string itemGetName = Q.InputText();
+                        if (inv[selectedInv].content.ContainsKey(itemGetName))
+                        {
+                            int itemGetQuantity = 1;
+                            inv[destinationInv].AddItem(new Item(0, 0, 0, 0, inv[selectedInv].content[itemGetName].value, itemGetName, itemGetQuantity));
+                            inv[selectedInv].RemoveItem(itemGetName, itemGetQuantity);
+                        }
+                        else
+                        {
+                            Console.WriteLine("No Item");
+                        }
+
                         break;
                 }
             }
@@ -224,6 +253,8 @@ namespace Brawlworld
         {
             return 1;
         }
+
+        public Item itemRet = new Item(0, 0, 0, 0, 0, "Item.Transfer.Success", 0);
     }
 
     class NameGenerator
@@ -770,7 +801,7 @@ namespace Brawlworld
     class Inventory
     {
         int money = 0;
-        Dictionary<string, Item> content = new Dictionary<string, Item>();
+        public Dictionary<string, Item> content = new Dictionary<string, Item>();
 
         public void AddItem(Item itemAdd)
         {
@@ -780,24 +811,53 @@ namespace Brawlworld
             }
             else
             {
-                content.Add(itemAdd.name, itemAdd);
+                if (itemAdd.quantity > 0)
+                {
+                    content.Add(itemAdd.name, itemAdd);
+                }
             }
         }
 
-        public Item removeItem(Item itemRem)
+        public Item RemoveItem(string itemGetName, int amount)
         {
-            if (content[itemRem.name].quantity - itemRem.quantity > 0)
+            if (content.ContainsKey(itemGetName))
             {
-                content[itemRem.name].quantity -= itemRem.quantity;
+                if (content[itemGetName].quantity - amount > 0)
+                {
+                    content[itemGetName].quantity -= amount;
+                }
+                else
+                {
+                    Item ret = content[itemGetName];
+                    content.Remove(itemGetName);
+                    return ret;
+                }
             }
-            else
-            {
-                itemRem.quantity -= content[itemRem.name].quantity;
-                content.Remove(itemRem.name);
-                return itemRem;
-            }
-            return null;
+            return new Item(0,0,0,0,0,"0",0);
         }
+
+        /*
+        public Item RemoveItem(Item itemRem)
+        {
+            if (content.ContainsKey(itemRem.name))
+            {
+                if (content[itemRem.name].quantity - itemRem.quantity > 0)
+                {    
+                    content[itemRem.name].quantity -= itemRem.quantity;
+
+                    itemRem.quantity = 0;
+                    return itemRem;
+                }
+                else
+                {
+                    itemRem.quantity -= content[itemRem.name].quantity;
+                    content.Remove(itemRem.name);
+                    return itemRem;
+                }
+            }
+            return itemRem;
+        }
+        //*/
 
         public int MoneyTransfer(int amount)
         {
