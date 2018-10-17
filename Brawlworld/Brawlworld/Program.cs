@@ -13,9 +13,9 @@ namespace Brawlworld
 
             Inventory[] inv = new Inventory[2] {new Inventory(), new Inventory() };
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 4; i++)
             {
-                if (i < 5)
+                if (i < 2)
                 {
                     inv[0].AddItem(new Item(0, 0, 0, 0, 10 * i, "Test_" + i, i));
                 }
@@ -24,40 +24,41 @@ namespace Brawlworld
                     inv[1].AddItem(new Item(0, 0, 0, 0, Convert.ToInt32(100 + 100 * 0.1 * i), "Test_" + i, i));
                 }
             }
-            int selectedInv = 0;
-            int destinationInv = 1;
+
+            Inventory invSrc = inv[0];
+            Inventory invTo = inv[1];
             while (true)
             {
                 
-                inv[0].WriteContent();
-                inv[1].WriteContent();
+                invSrc.WriteContent();
+                invTo.WriteContent();
                 Console.WriteLine("Inventory: 0 1 T");
                 switch (Q.InputKey())
                 {
                     case "0":
                     default:
-                        selectedInv = 0;
-                        destinationInv = 1;
+                        invSrc = inv[0];
+                        invTo = inv[1];
                         break;
 
                     case "1":
-                        selectedInv = 1;
-                        destinationInv = 0;
+                        invSrc = inv[1];
+                        invTo = inv[0];
                         break;
 
                     case "T":
-                        Console.WriteLine("Item name");
-                        string itemGetName = Q.InputText();
-                        if (inv[selectedInv].content.ContainsKey(itemGetName))
-                        {
-                            int itemGetQuantity = 1;
-                            inv[destinationInv].AddItem(new Item(0, 0, 0, 0, inv[selectedInv].content[itemGetName].value, itemGetName, itemGetQuantity));
-                            inv[selectedInv].RemoveItem(itemGetName, itemGetQuantity);
-                        }
-                        else
-                        {
-                            Console.WriteLine("No Item");
-                        }
+                        Console.WriteLine("Item Num");
+                        int itemNum = Math.Max(0, Math.Min(invSrc.contentList.Length, Q.InputNumberInt() - 1));
+
+                        //Console.WriteLine("Item quantity");
+                        int itemQuantity = 1; //Q.InputNumberInt();
+
+                        Item itemTransferSrc = new Item(0, 0, 0, 0, invSrc.contentList[itemNum].value, invSrc.contentList[itemNum].name, itemQuantity);
+                        //invSrc.RemoveItem(itemTransferSrc);
+
+                        Item itemTransferTo = new Item(0, 0, 0, 0, invSrc.contentList[itemNum].value, invSrc.contentList[itemNum].name, itemQuantity - invSrc.RemoveItem(itemTransferSrc).quantity);
+                        invTo.AddItem(itemTransferTo);
+
 
                         break;
                 }
@@ -800,24 +801,44 @@ namespace Brawlworld
 
     class Inventory
     {
+        int slots = 6;
         int money = 0;
         public Dictionary<string, Item> content = new Dictionary<string, Item>();
+        public Item[] contentList;
 
-        public void AddItem(Item itemAdd)
+        public Item AddItem(Item itemAdd)
         {
-            if (content.ContainsKey(itemAdd.name))
+            if (itemAdd != null)
             {
-                content[itemAdd.name].quantity += itemAdd.quantity;
-            }
-            else
-            {
-                if (itemAdd.quantity > 0)
+                if (content.Count <= slots)
                 {
-                    content.Add(itemAdd.name, itemAdd);
+                    if (content.ContainsKey(itemAdd.name))
+                    {
+                        content[itemAdd.name].quantity += itemAdd.quantity;
+                    }
+                    else
+                    {
+                        if (itemAdd.quantity > 0)
+                        {
+                            content.Add(itemAdd.name, itemAdd);
+                        }
+                    }
+                    ContentToList();
+                    return ItemZero();
+                }
+                else
+                {
+                    Console.WriteLine("Inventory full");
+                    ContentToList();
+                    return itemAdd;
                 }
             }
+
+            ContentToList();
+            return ItemZero();
         }
 
+        /*
         public Item RemoveItem(string itemGetName, int amount)
         {
             if (content.ContainsKey(itemGetName))
@@ -833,10 +854,11 @@ namespace Brawlworld
                     return ret;
                 }
             }
-            return new Item(0,0,0,0,0,"0",0);
+            return null;
         }
+        //*/
 
-        /*
+        //*
         public Item RemoveItem(Item itemRem)
         {
             if (content.ContainsKey(itemRem.name))
@@ -845,16 +867,19 @@ namespace Brawlworld
                 {    
                     content[itemRem.name].quantity -= itemRem.quantity;
 
-                    itemRem.quantity = 0;
-                    return itemRem;
+                    ContentToList();
+                    return ItemZero();
                 }
                 else
                 {
                     itemRem.quantity -= content[itemRem.name].quantity;
                     content.Remove(itemRem.name);
+                    ContentToList();
                     return itemRem;
                 }
             }
+
+            ContentToList();
             return itemRem;
         }
         //*/
@@ -872,6 +897,17 @@ namespace Brawlworld
             return 0;
         }
 
+        void ContentToList()
+        {
+            contentList = new Item[content.Count];
+            int i = 0;
+            foreach (KeyValuePair<string, Item> de in content)
+            {
+                contentList[i] = de.Value;
+                i++;
+            }
+        }
+
         public void WriteContent()
         {
             Console.WriteLine("Money: " + money + "$");
@@ -881,6 +917,11 @@ namespace Brawlworld
                 Console.WriteLine(i.name + " [" + i.quantity + "] [" + i.value + "$] " + i.strenght + " " + i.vitality + " " + i.intelegence + " " + i.vitality);
             }
             Console.WriteLine();
+        }
+
+        Item ItemZero()
+        {
+            return new Item(0, 0, 0, 0, 0, "0", 0);
         }
     }
 }
