@@ -7,49 +7,49 @@ namespace Brawlworld
     {
         static int Main()
         {
-            Program P = new Program();
             Lexicon Q = new Lexicon();
             GameController gctrl = new GameController(Q);
 
-            Inventory[] inv = new Inventory[2] {new Inventory(), new Inventory() };
+            gctrl.InitPlr();
+            MapManager mm = new MapManager(Q);
+            mm.map.MapGen(10, new int[0]);
+            gctrl.players[0].plr.pos = new int[2] { mm.map.width/2, mm.map.height/2 };
 
-            for (int i = 0; i < 4; i++)
-            {
-                if (i < 2)
-                {
-                    inv[0].AddItem(new Item(0, 0, 0, 0, i * i, "Test_" + i, i));
-                }
-                else
-                {
-                    inv[1].AddItem(new Item(0, 0, 0, 0, i * i, "Test_" + i, i));
-                }
-            }
-
-            Inventory invSrc = inv[0];
-            Inventory invTo = inv[1];
             while (true)
             {
+                mm.RendMap(gctrl.players[0].plr.pos);
+                Console.WriteLine(gctrl.players[0].plr.pos[Q.GetX()] + " " + gctrl.players[0].plr.pos[Q.GetY()]);
 
-                invSrc.WriteContent();
-                invTo.WriteContent();
-                Console.WriteLine("Inventory: 0 1 T");
                 switch (Q.InputKey())
                 {
-                    case "0":
                     default:
-                        invSrc = inv[0];
-                        invTo = inv[1];
+                        Console.WriteLine("No Input");
+                        Q.InputKey();
                         break;
 
-                    case "1":
-                        invSrc = inv[1];
-                        invTo = inv[0];
+                    case "W":
+                    case "I":
+                        mm.MoveEntity(gctrl.players[0].plr, new int[2] { 0, -1 });
                         break;
 
-                    case "T":
-                        Q.TransferItem(new Inventory[2] { invSrc, invTo });
+                    case "J":
+                    case "A":
+                        mm.MoveEntity(gctrl.players[0].plr, new int[2] { -1, 0 });
                         break;
+
+                    case "K":
+                    case "S":
+                        mm.MoveEntity(gctrl.players[0].plr, new int[2] { 0, 1 });
+                        break;
+
+                    case "L":
+                    case "D":
+                        mm.MoveEntity(gctrl.players[0].plr, new int[2] { 1, 0 });
+                        break;
+
                 }
+                
+                
             }
 
             Console.Title = "BrawlWorld";
@@ -238,7 +238,7 @@ namespace Brawlworld
 
             for (int i = 0; i < inv.Length; i++)
             {
-                Console.WriteLine("Inventory " + i + ":");
+                Console.WriteLine("Inventory " + (i + 1) + ":");
                 inv[i].WriteContent();
             }
 
@@ -299,12 +299,15 @@ namespace Brawlworld
 
         
         Random r = new Random();
+        bool singleName;
 
-        public NameGenerator(int debugSeed = -1)
+        public NameGenerator(bool singleNameSet = false, int debugSeed = -1)
         {
+            
             if(debugSeed > 0)
             {
                 r = new Random(debugSeed);
+                singleName = singleNameSet;
             }
         }
 
@@ -344,17 +347,17 @@ namespace Brawlworld
                 }
             }
 
-            if (r.Next(100) > 85)
+            if (r.Next(100) > 85 && !singleName)
             {
                 name += " " + GenName(); ;
             }
 
-            if (r.Next(100) > 75)
+            if (r.Next(100) > 75 && !singleName)
             {
                 name += " the " + title[r.Next(title.Length)];
             }
 
-            if (r.Next(100) > 85)
+            if (r.Next(100) > 85 && !singleName)
             {
                 name += " of " + GenName();
             }
@@ -520,25 +523,148 @@ namespace Brawlworld
     {
         Lexicon Q;
 
-        MapManager(Lexicon getQ)
+        public MapManager(Lexicon getQ)
         {
             Q = getQ;
+            map = new Map(20,20);
         }
 
-        Tile[,] map;
+        public Map map;
 
-        void GenMap(int xSize = 10, int ySize = 10)
+        void SetCurrentMap(Map mapSet)
         {
-            map = new Tile[xSize, ySize];
+            map = mapSet;
+        }
+
+        public void MoveEntity(Entity ent, int[] walkLng)
+        {
+            if (map.GetTile(ent.pos[Q.GetX()] + walkLng[Q.GetX()], ent.pos[Q.GetY()] + walkLng[Q.GetY()]).walkable)
+            {
+                ent.pos[Q.GetX()] += walkLng[Q.GetX()];
+                ent.pos[Q.GetY()] += walkLng[Q.GetY()];
+            } else
+            {
+                Console.WriteLine("Tile out of Bounds");
+            }
+        }
+
+        public void RendMap(int[] plrPos)
+        {
+            int viewDistance = 3;
+            Console.Clear();
+            Console.WriteLine();
+            for (int y = plrPos[1] - viewDistance; y < plrPos[1] + (viewDistance +1); y++)
+            {
+                Console.BackgroundColor = ConsoleColor.Black;
+                Console.Write("                    ");
+                for (int x = plrPos[0] - viewDistance; x < plrPos[0] + (viewDistance +1); x++)
+                {
+                    if (y == plrPos[1] && x == plrPos[0])
+                    {
+                        map.GetTile(x, y).Rend("@");
+                    }
+                    else
+                    {
+                        map.GetTile(x, y).Rend();
+                    }
+                }
+                Console.WriteLine();
+            }
+
+            Console.BackgroundColor = ConsoleColor.Black;
         }
 
     }
 
+    class Map
+    {
+        public int width, height;
+        Tile[,] map;
+
+        public Map(int widthSet, int heightSet)
+        {
+            map = new Tile[widthSet, heightSet];
+            for (int y = 0; y < map.GetUpperBound(1); y++)
+            {
+                for (int x = 0; x < map.GetUpperBound(0); x++)
+                {
+                    map[x, y] = new Tile();
+
+                    /*
+                    if (x == 0 || x == map.GetUpperBound(0)-1 || y == 0 || y == map.GetUpperBound(1)-1)
+                    {
+                        map[x, y] = new Tile();
+                    }
+                    */
+                }
+            }
+        }
+
+        public void MapGen(int landMass, int[] structures)
+        {
+            for (int x = 0; x < map.GetUpperBound(0); x++)
+            {
+                map[x, 0] = new Tile();
+                map[x, map.GetUpperBound(1)] = new Tile();
+            }
+
+            for (int y = 0; y < map.GetUpperBound(0); y++)
+            {
+                map[0, y] = new Tile();
+                map[map.GetUpperBound(0), y] = new Tile();
+            }
+
+            int xSet = map.GetUpperBound(0)/2, ySet = map.GetUpperBound(1)/2;
+            Random r = new Random();
+            while (landMass >= 0)
+            {
+                if (GetTile(xSet, ySet).icon != " " || GetTile(xSet, ySet).icon != "~")
+                {
+                    map[xSet, ySet] = new Tile(true, " ", ConsoleColor.DarkGreen);
+                    xSet += r.Next(-1, 1);
+                    ySet += r.Next(-1, 1);
+                    landMass--;
+                }
+            }
+        }
+
+
+        public Tile GetTile(int x, int y)
+        {
+            return map[Math.Max(0, Math.Min(map.GetUpperBound(0) -1, x)), Math.Max(0, Math.Min(map.GetUpperBound(1) -1, y))];
+        }
+    }
+
     class Tile
     {
-        public bool unWalkable;
+        public string icon = "~";
+        ConsoleColor clr = ConsoleColor.Blue;
+        int[,] pos;
 
-        Entity occupant;
+        public bool walkable = false;
+
+        public Tile(bool walkableSet = false, string iconSet = "~", ConsoleColor clrSet = ConsoleColor.Blue)
+        {
+            walkable = walkableSet;
+            icon = iconSet;
+            clr = clrSet;
+        }
+
+        public void Rend(string iconRend = "")
+        {
+            if (iconRend == "")
+            {
+                iconRend = icon;
+            }
+            Console.BackgroundColor = clr;
+            if (walkable)
+            {
+                Console.Write("|_" + iconRend + "_");
+            } else
+            {
+                Console.Write("  " + iconRend + " ");
+            }
+        }
 
     }
 
@@ -552,14 +678,20 @@ namespace Brawlworld
             Q = getQ;
         }
 
-        public string name;
-        public int[,] pos;
+        public int[] pos = new int[2] {0,0};
+
+        public void MapPosSet(int x, int y)
+        {
+            pos[0] = x;
+            pos[1] = y;
+        }
 
         public string WriteName()
         {
             return name;
         }
 
+        public string name;
         public void NameSet(string nameSet)
         {
             name = nameSet;
