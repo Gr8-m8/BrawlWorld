@@ -12,8 +12,8 @@ namespace Brawlworld
 
             gctrl.InitPlr();
             MapManager mm = new MapManager(Q);
-            mm.map.MapGen(10, new int[0]);
-            gctrl.players[0].plr.pos = new int[2] { mm.map.width/2, mm.map.height/2 };
+            mm.map.MapGen(Convert.ToInt32((mm.map.width * mm.map.height) * 0.2), new int[0]);
+            gctrl.players[0].plr.pos = new int[2] { (mm.map.width/2), (mm.map.height/2) };
 
             while (true)
             {
@@ -526,7 +526,7 @@ namespace Brawlworld
         public MapManager(Lexicon getQ)
         {
             Q = getQ;
-            map = new Map(20,20);
+            map = new Map(40,40);
         }
 
         public Map map;
@@ -550,8 +550,8 @@ namespace Brawlworld
 
         public void RendMap(int[] plrPos)
         {
-            int viewDistance = 3;
-            Console.Clear();
+            int viewDistance = 10;
+            //Console.Clear();
             Console.WriteLine();
             for (int y = plrPos[1] - viewDistance; y < plrPos[1] + (viewDistance +1); y++)
             {
@@ -583,12 +583,14 @@ namespace Brawlworld
 
         public Map(int widthSet, int heightSet)
         {
+            width = widthSet;
+            height = heightSet;
             map = new Tile[widthSet, heightSet];
             for (int y = 0; y < map.GetUpperBound(1); y++)
             {
                 for (int x = 0; x < map.GetUpperBound(0); x++)
                 {
-                    map[x, y] = new Tile();
+                    map[x, y] = new Tile(new int[2] { x,y }, false, "UNSET");
 
                     /*
                     if (x == 0 || x == map.GetUpperBound(0)-1 || y == 0 || y == map.GetUpperBound(1)-1)
@@ -604,34 +606,59 @@ namespace Brawlworld
         {
             for (int x = 0; x < map.GetUpperBound(0); x++)
             {
-                map[x, 0] = new Tile();
-                map[x, map.GetUpperBound(1)] = new Tile();
+                map[x, 0] = new Tile(new int[2] { x, 0 });
+                map[x, map.GetUpperBound(1)] = new Tile(new int[2] { x, map.GetUpperBound(1) });
             }
 
             for (int y = 0; y < map.GetUpperBound(0); y++)
             {
-                map[0, y] = new Tile();
-                map[map.GetUpperBound(0), y] = new Tile();
+                map[0, y] = new Tile(new int[2] { 0, y });
+                map[map.GetUpperBound(0), y] = new Tile(new int[2] { map.GetUpperBound(0), y });
             }
 
-            int xSet = map.GetUpperBound(0)/2, ySet = map.GetUpperBound(1)/2;
+            int[] genPos = new int[2] { (width / 2), (height / 2) };
+            Tile[] genTiles = new Tile[landMass];
+            
             Random r = new Random();
-            while (landMass >= 0)
-            {
-                if (GetTile(xSet, ySet).icon != " " || GetTile(xSet, ySet).icon != "~")
+
+            while (landMass > 0)
+            {   
+
+                if (GetTile(genPos[0], genPos[1]).icon == "UNSET")
                 {
-                    map[xSet, ySet] = new Tile(true, " ", ConsoleColor.DarkGreen);
-                    xSet += r.Next(-1, 1);
-                    ySet += r.Next(-1, 1);
+                    
+                    map[genPos[0], genPos[1]] = new Tile(new int[2] { genPos[0], genPos[1] }, true, " ", ConsoleColor.DarkGreen);
+                    genTiles[genTiles.Length - landMass] = map[genPos[0], genPos[1]];
+
                     landMass--;
+                }
+
+                int dim = r.Next(2);
+                genPos[dim] = genTiles[r.Next((genTiles.Length - 1) - landMass)].pos[dim] + r.Next(-1, 2);
+
+            }
+
+            for (int y = 0; y < map.GetUpperBound(1); y++)
+            {
+                for (int x = 0; x < map.GetUpperBound(0); x++)
+                {
+                    if (GetTile(x, y).icon == "UNSET")
+                    {       
+                        map[x, y] = new Tile(new int[2] { x, y });
+                    }
                 }
             }
         }
 
 
-        public Tile GetTile(int x, int y)
+        public Tile GetTileAll(int x, int y)
         {
             return map[Math.Max(0, Math.Min(map.GetUpperBound(0) -1, x)), Math.Max(0, Math.Min(map.GetUpperBound(1) -1, y))];
+        }
+
+        public Tile GetTile(int x, int y)
+        {
+            return map[Math.Max(1, Math.Min(map.GetUpperBound(0) - 2, x)), Math.Max(1, Math.Min(map.GetUpperBound(1) - 2, y))];
         }
     }
 
@@ -639,12 +666,13 @@ namespace Brawlworld
     {
         public string icon = "~";
         ConsoleColor clr = ConsoleColor.Blue;
-        int[,] pos;
+        public int[] pos = new int[2];
 
         public bool walkable = false;
 
-        public Tile(bool walkableSet = false, string iconSet = "~", ConsoleColor clrSet = ConsoleColor.Blue)
+        public Tile(int[] posSet, bool walkableSet = false, string iconSet = "~", ConsoleColor clrSet = ConsoleColor.Blue)
         {
+            Array.Copy(posSet, pos, 2);
             walkable = walkableSet;
             icon = iconSet;
             clr = clrSet;
