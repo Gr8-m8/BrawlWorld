@@ -550,15 +550,16 @@ namespace Brawlworld
 
         public void RendMap(int[] plrPos)
         {
-            int viewDistance = 10;
-            //Console.Clear();
+            int viewDistance = 5;
+            Console.Clear();
             Console.WriteLine();
             for (int y = plrPos[1] - viewDistance; y < plrPos[1] + (viewDistance +1); y++)
             {
                 Console.BackgroundColor = ConsoleColor.Black;
                 Console.Write("                    ");
-                for (int x = plrPos[0] - viewDistance; x < plrPos[0] + (viewDistance +1); x++)
+                for (int x = plrPos[0] - viewDistance; x < plrPos[0] + (viewDistance + 1); x++)
                 {
+
                     if (y == plrPos[1] && x == plrPos[0])
                     {
                         map.GetTile(x, y).Rend("@");
