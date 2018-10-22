@@ -12,9 +12,12 @@ namespace Brawlworld
 
             gctrl.InitPlr();
             MapManager mm = new MapManager(Q);
-            mm.map.MapGen(Convert.ToInt32((mm.map.width * mm.map.height) * 0.2), new int[0]);
+            //mm.map.MapGenOutside(new Random().Next(15, 51), new Random().Next(15,51));
+            mm.SetCurrentMap(new Map(Q));
+            mm.map.MapGenOutside(5, 5);
             gctrl.players[0].plr.pos = new int[2] { (mm.map.width/2), (mm.map.height/2) };
 
+            Q.InputKey();
             while (true)
             {
                 mm.RendMap(gctrl.players[0].plr.pos);
@@ -526,12 +529,11 @@ namespace Brawlworld
         public MapManager(Lexicon getQ)
         {
             Q = getQ;
-            map = new Map(40,40);
         }
 
-        public Map map;
+        public Map map; //= new Map();
 
-        void SetCurrentMap(Map mapSet)
+        public void SetCurrentMap(Map mapSet)
         {
             map = mapSet;
         }
@@ -550,7 +552,7 @@ namespace Brawlworld
 
         public void RendMap(int[] plrPos)
         {
-            int viewDistance = 5;
+            int viewDistance = 10;
             Console.Clear();
             Console.WriteLine();
             for (int y = plrPos[1] - viewDistance; y < plrPos[1] + (viewDistance +1); y++)
@@ -579,11 +581,18 @@ namespace Brawlworld
 
     class Map
     {
+        Lexicon Q;
+        public Map(Lexicon getQ)
+        {
+            Q = getQ;
+        }
+
         public int width, height;
         Tile[,] map;
 
-        public Map(int widthSet, int heightSet)
+        void MapInit(int widthSet, int heightSet)
         {
+            
             width = widthSet;
             height = heightSet;
             map = new Tile[widthSet, heightSet];
@@ -591,61 +600,94 @@ namespace Brawlworld
             {
                 for (int x = 0; x < map.GetUpperBound(0); x++)
                 {
-                    map[x, y] = new Tile(new int[2] { x,y }, false, "UNSET");
-
-                    /*
-                    if (x == 0 || x == map.GetUpperBound(0)-1 || y == 0 || y == map.GetUpperBound(1)-1)
-                    {
-                        map[x, y] = new Tile();
-                    }
-                    */
+                    map[x, y] = new Tile(new int[2] { x, y }, false, "U", ConsoleColor.White);
                 }
             }
         }
 
-        public void MapGen(int landMass, int[] structures)
+        public void MapGenOutside(int widthSet, int heightSet)
+        {
+            MapInit(widthSet, heightSet);
+
+            GenMapBorder("~", ConsoleColor.DarkBlue);
+            
+
+            //GenTerrainArea(Convert.ToInt32(width * height * 0.1), new int[2] { Convert.ToInt32(width * 0.25), Convert.ToInt32(height * 0.25) }, ",", ConsoleColor.DarkGreen);
+            //GenTerrainArea(Convert.ToInt32(width * height * 0.1), new int[2] { Convert.ToInt32(width * 0.50), Convert.ToInt32(height * 0.50) }, ",", ConsoleColor.DarkGreen);
+            //GenTerrainArea(Convert.ToInt32(width * height * 0.1), new int[2] { Convert.ToInt32(width * 0.75), Convert.ToInt32(height * 0.75) }, ",", ConsoleColor.DarkGreen);
+
+
+
+            //GenFill("U", "~", ConsoleColor.Blue);
+        }
+
+        void GenTerrainArea(int tilesToGen, int[] startPos, string iconSet, ConsoleColor colorSet)
+        {
+            Random r = new Random();
+            int[] genPos = new int[2] { startPos[0], startPos[1] };
+            Tile[] genTiles = new Tile[tilesToGen];
+
+            while (tilesToGen > 0)
+            {
+                if (GetTile(genPos[0], genPos[1]).icon == "U")
+                {
+                    map[GetTile(genPos[0], genPos[1]).pos[0], GetTile(genPos[0], genPos[1]).pos[1]] = new Tile(new int[2] { genPos[0], genPos[1] }, true, iconSet, colorSet);                
+                    genTiles[genTiles.Length - tilesToGen] = map[genPos[0], genPos[1]];
+
+                    tilesToGen--;
+                }
+
+                int genTilesNum = r.Next((genTiles.Length - 1) - tilesToGen);
+                genPos[0] = genTiles[genTilesNum].pos[0];
+                genPos[1] = genTiles[genTilesNum].pos[1];
+
+                int dim = r.Next(2);
+                genPos[dim] += r.Next(-1, 2);
+
+            }
+        }
+
+        void GenTerrainChain(int amount, int chainLenght, int[] startPos, bool walkableSet, string iconSet, ConsoleColor colorset)
+        {
+            Random r = new Random();
+            int[] genPos = new int[2] {startPos[0], startPos[1] };
+            List<Tile> genTiles;
+
+            for (; amount > 0; amount--)
+            {
+                for (; chainLenght > 0; chainLenght--)
+                {
+                    map[GetTile(genPos[0], genPos[1]).pos[0], GetTile(genPos[0], genPos[1]).pos[1]] = new Tile(new int[2] { genPos[0], genPos[1] }, walkableSet, iconSet, colorset);
+                    int dim = r.Next(2);
+                    genPos[dim] += r.Next(-1, 2);
+                }
+            }
+        }
+
+        void GenMapBorder(string iconSet, ConsoleColor colorSet)
         {
             for (int x = 0; x < map.GetUpperBound(0); x++)
             {
-                map[x, 0] = new Tile(new int[2] { x, 0 });
-                map[x, map.GetUpperBound(1)] = new Tile(new int[2] { x, map.GetUpperBound(1) });
+                map[x, 0] = new Tile(new int[2] { x, 0 }, false, iconSet, colorSet);
+                map[x, map.GetUpperBound(1)] = new Tile(new int[2] { x, map.GetUpperBound(1) }, false, iconSet, colorSet);
             }
 
             for (int y = 0; y < map.GetUpperBound(0); y++)
             {
-                map[0, y] = new Tile(new int[2] { 0, y });
-                map[map.GetUpperBound(0), y] = new Tile(new int[2] { map.GetUpperBound(0), y });
+                map[0, y] = new Tile(new int[2] { 0, y }, false, iconSet, colorSet);
+                map[map.GetUpperBound(0), y] = new Tile(new int[2] { map.GetUpperBound(0), y }, false, iconSet, colorSet);
             }
+        }
 
-            int[] genPos = new int[2] { (width / 2), (height / 2) };
-            Tile[] genTiles = new Tile[landMass];
-            
-            Random r = new Random();
-
-            while (landMass > 0)
-            {   
-
-                if (GetTile(genPos[0], genPos[1]).icon == "UNSET")
-                {
-                    
-                    map[genPos[0], genPos[1]] = new Tile(new int[2] { genPos[0], genPos[1] }, true, " ", ConsoleColor.DarkGreen);
-                    genTiles[genTiles.Length - landMass] = map[genPos[0], genPos[1]];
-
-                    landMass--;
-                }
-
-                int dim = r.Next(2);
-                genPos[dim] = genTiles[r.Next((genTiles.Length - 1) - landMass)].pos[dim] + r.Next(-1, 2);
-
-            }
-
+        void GenFill(string replaceIcon, string iconSet, ConsoleColor colorSet)
+        {
             for (int y = 0; y < map.GetUpperBound(1); y++)
             {
                 for (int x = 0; x < map.GetUpperBound(0); x++)
                 {
-                    if (GetTile(x, y).icon == "UNSET")
-                    {       
-                        map[x, y] = new Tile(new int[2] { x, y });
+                    if (GetTile(x, y).icon == replaceIcon)
+                    {
+                        map[x, y] = new Tile(new int[2] { x, y }, false, iconSet, colorSet);
                     }
                 }
             }
