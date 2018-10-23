@@ -15,11 +15,13 @@ namespace Brawlworld
             mm.SetCurrentMap(new Map(Q));
             mm.map.MapGenOutside(new Random().Next(15, 51), new Random().Next(15, 51));
             gctrl.players[0].plr.pos = new int[2] { (mm.map.width/2), (mm.map.height/2) };
+            int[] dir = new int[2] { 0, 0 };
+            mm.RendMap(gctrl.players[0].plr.pos, new int[2] { dir[0], dir[1] }, true);
 
             //Q.InputKey();
             while (true)
             {
-                mm.RendMap(gctrl.players[0].plr.pos);
+                mm.RendMap(gctrl.players[0].plr.pos, new int[2] { dir[0], dir[1] });
                 Console.WriteLine(gctrl.players[0].plr.pos[Q.GetX()] + " " + gctrl.players[0].plr.pos[Q.GetY()]);
 
                 switch (Q.InputKey())
@@ -31,22 +33,26 @@ namespace Brawlworld
 
                     case "W":
                     case "I":
-                        mm.MoveEntity(gctrl.players[0].plr, new int[2] { 0, -1 });
+                        dir = new int[2] { 0, -1 };
+                        mm.MoveEntity(gctrl.players[0].plr, dir);
                         break;
 
                     case "J":
                     case "A":
-                        mm.MoveEntity(gctrl.players[0].plr, new int[2] { -1, 0 });
+                        dir = new int[2] { -1, 0 };
+                        mm.MoveEntity(gctrl.players[0].plr, dir);
                         break;
 
                     case "K":
                     case "S":
-                        mm.MoveEntity(gctrl.players[0].plr, new int[2] { 0, 1 });
+                        dir = new int[2] { 0, 1 };
+                        mm.MoveEntity(gctrl.players[0].plr, dir);
                         break;
 
                     case "L":
                     case "D":
-                        mm.MoveEntity(gctrl.players[0].plr, new int[2] { 1, 0 });
+                        dir = new int[2] { 1, 0 };
+                        mm.MoveEntity(gctrl.players[0].plr, dir);
                         break;
 
                 }
@@ -551,7 +557,7 @@ namespace Brawlworld
             }
         }
 
-        public void RendMap(int[] plrPos)
+        public void RendMap(int[] plrPos, int[] dir, bool firstTimeRender = false)
         {
             int marginTop = 2;
             int marginLeft = 20;
@@ -580,25 +586,28 @@ namespace Brawlworld
 
                     for (int cx = 0; cx < 2* viewDistance +1; cx++)
                     {
-                        //Console.BackgroundColor = map.GetTileAll(x, y).clr;
-                        Console.BackgroundColor = ConsoleColor.White;
+
                         for (int w = 0; w < tileWidth; w++)
                         {
-                            Console.SetCursorPosition(marginLeft + cx * tileWidth + w, marginTop + cy + h);
-                            Console.BackgroundColor = map.GetTileAll(plrPos[0] - viewDistance + cx, plrPos[1] - viewDistance + cy).clr;
-                            
-                            if (w == 0)
+                            if (map.GetTileAll(plrPos[0] - viewDistance + cx, plrPos[1] - viewDistance + cy).clr != map.GetTileAll((plrPos[0] - viewDistance + cx) - dir[0], (plrPos[1] - viewDistance + cy) - dir[1]).clr || firstTimeRender)
                             {
-                                Console.Write("|");
-                            } else if (h == tileHeight - 1)
-                            {
-                                if (w == 1 || w == tileWidth -1)
+                                Console.SetCursorPosition(marginLeft + cx * tileWidth + w, marginTop + cy + h);
+                                Console.BackgroundColor = map.GetTileAll(plrPos[0] - viewDistance + cx, plrPos[1] - viewDistance + cy).clr;
+
+                                if (w == 0)
                                 {
-                                    Console.Write("_");
+                                    Console.Write("|");
                                 }
-                                else
+                                else if (h == tileHeight - 1)
                                 {
-                                    Console.Write(" ");
+                                    if (w == 1 || w == tileWidth - 1)
+                                    {
+                                        Console.Write("_");
+                                    }
+                                    else
+                                    {
+                                        Console.Write(" ");
+                                    }
                                 }
                             }
                         }
@@ -614,6 +623,7 @@ namespace Brawlworld
 
             Console.SetCursorPosition(0,0);
             Console.ResetColor();
+            Console.WriteLine();
         }
 
     }
