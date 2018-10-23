@@ -16,7 +16,7 @@ namespace Brawlworld
             mm.map.MapGenOutside(new Random().Next(15, 51), new Random().Next(15, 51));
             gctrl.players[0].plr.pos = new int[2] { (mm.map.width/2), (mm.map.height/2) };
 
-            //Q.InputKey();
+            Q.InputKey();
             while (true)
             {
                 mm.RendMap(gctrl.players[0].plr.pos);
@@ -541,8 +541,8 @@ namespace Brawlworld
         {
             if (map.GetTile(ent.pos[Q.GetX()] + walkLng[Q.GetX()], ent.pos[Q.GetY()] + walkLng[Q.GetY()]).walkable)
             {
-                ent.pos[Q.GetX()] = Q.Clamp(1, map.width - 1, ent.pos[Q.GetX()] + walkLng[Q.GetX()]);
-                ent.pos[Q.GetY()] = Q.Clamp(1, map.height - 1, ent.pos[Q.GetY()] + walkLng[Q.GetY()]);
+                ent.pos[Q.GetX()] = Q.Clamp(1, map.width - 2, ent.pos[Q.GetX()] + walkLng[Q.GetX()]);
+                ent.pos[Q.GetY()] = Q.Clamp(1, map.height - 2, ent.pos[Q.GetY()] + walkLng[Q.GetY()]);
             } else
             {
                 Console.WriteLine("Tile out of Bounds");
@@ -552,26 +552,31 @@ namespace Brawlworld
         public void RendMap(int[] plrPos)
         {
             int viewDistance = 10;
+            int tileHeight = 1;
             Console.Clear();
             Console.WriteLine();
-            for (int y = plrPos[1] - viewDistance; y < plrPos[1] + (viewDistance +1); y++)
+            for (int y = plrPos[1] - Convert.ToInt32(viewDistance/tileHeight); y < plrPos[1] + (Convert.ToInt32(viewDistance/tileHeight) + 1); y++)
             {
-                Console.BackgroundColor = ConsoleColor.Black;
-                Console.Write("                    ");
-                for (int x = plrPos[0] - viewDistance; x < plrPos[0] + (viewDistance + 1); x++)
+                for (int i = 0; i < tileHeight; i++)
                 {
-                    /*
-                    Console.SetCursorPosition(18 + (1 + x) * 4, 1 + y);
-                    if (map.GetTileAll(x, y).icon == Console.)
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    Console.Write("                    ");
+                    for (int x = plrPos[0] - viewDistance; x < plrPos[0] + (viewDistance + 1); x++)
                     {
+                        /*
+                        Console.SetCursorPosition(18 + (1 + x) * 4, 1 + y);
+                        if (map.GetTileAll(x, y).icon == Console.)
+                        {
 
-                    } else
-                    {
+                        } else
+                        {
+                            map.GetTileAll(x, y).Rend();
+                        }
+                        //*/
                         map.GetTileAll(x, y).Rend();
                     }
-                    //*/map.GetTileAll(x, y).Rend();
+                    Console.WriteLine();
                 }
-                Console.WriteLine();
             }
             
             Console.SetCursorPosition(18 + (1 + viewDistance) * 4, 1 + viewDistance);
@@ -600,10 +605,12 @@ namespace Brawlworld
             
             width = widthSet;
             height = heightSet;
-            map = new Tile[widthSet, heightSet];
-            for (int y = 0; y < map.GetUpperBound(1); y++)
+            Console.WriteLine(width + " " + height);
+            map = new Tile[width +1, height +1];
+            Console.WriteLine(map.GetUpperBound(0) + " " + map.GetUpperBound(1));
+            for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x < map.GetUpperBound(0); x++)
+                for (int x = 0; x < width; x++)
                 {
                     map[x, y] = new Tile(new int[2] { x, y }, false, "U", ConsoleColor.White);
                 }
@@ -690,7 +697,7 @@ namespace Brawlworld
             {
                 for (int x = 0; x < map.GetUpperBound(0); x++)
                 {
-                    if (GetTile(x, y).icon == replaceIcon)
+                    if (GetTileAll(x, y).icon == replaceIcon)
                     {
                         map[x, y] = new Tile(new int[2] { x, y }, false, iconSet, colorSet);
                     }
@@ -701,12 +708,12 @@ namespace Brawlworld
 
         public Tile GetTileAll(int x, int y)
         {
-            return map[Math.Max(0, Math.Min(width - 2, x)), Math.Max(0, Math.Min(height - 2, y))];
+            return map[Math.Max(0, Math.Min((width - 1), x)), Math.Max(0, Math.Min((height - 1), y))];
         }
 
         public Tile GetTile(int x, int y)
         {
-            return map[Math.Max(1, Math.Min(width - 2, x)), Math.Max(1, Math.Min(height - 2, y))];
+            return map[Math.Max(1, Math.Min((width - 2), x)), Math.Max(1, Math.Min((height - 2), y))];
         }
     }
 
