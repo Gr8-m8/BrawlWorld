@@ -584,7 +584,8 @@ namespace Brawlworld
                         Console.BackgroundColor = ConsoleColor.White;
                         for (int w = 0; w < tileWidth; w++)
                         {
-                            Console.SetCursorPosition(marginLeft + cx * tileWidth + w, marginTop + cy);
+                            Console.SetCursorPosition(marginLeft + cx * tileWidth + w, marginTop + cy + h);
+                            Console.BackgroundColor = map.GetTileAll(plrPos[0] - viewDistance + cx, plrPos[1] - viewDistance + cy).clr;
                             
                             if (w == 0)
                             {
@@ -607,8 +608,8 @@ namespace Brawlworld
             }
             
             Console.SetCursorPosition(marginLeft + (viewDistance) * tileWidth + 2, marginTop + viewDistance);
-            Console.BackgroundColor = ConsoleColor.DarkMagenta;
-            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.BackgroundColor = ConsoleColor.Gray;
+            Console.ForegroundColor = ConsoleColor.DarkMagenta;
             Console.Write("@");
 
             Console.SetCursorPosition(0,0);
